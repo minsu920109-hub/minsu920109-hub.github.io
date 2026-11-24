@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e16">
+<meta name="description" content="가상의 계약서 조항과 구두 약속을 대조해 함정을 찾아내는 3분 추리 웹게임. 100% 창작 게임이며 실제 법률 자문이 아닙니다.">
+<title>계약서 판독실: 작은 글씨의 함정</title>
+<style>
+:root{
+  --bg:#0a0e16;
+  --bg2:#0c1320;
+  --panel:#131c2b;
+  --panel2:#182334;
+  --line:#243147;
+  --paper:#f8f4e9;
+  --paper2:#efe9d8;
+  --paper-line:#d8d0ba;
+  --ink:#1b2230;
+  --ink-soft:#5b6478;
+  --text:#e9eefa;
+  --muted:#93a2bd;
+  --red:#e2493a;
+  --red-deep:#b5342a;
+  --blue:#4d84ff;
+  --green:#35c08a;
+  --gold:#f2c352;
+  --orange:#f08a3c;
+  --shadow:0 12px 28px rgba(0,0,0,.42);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:#080b12}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  background:
+    radial-gradient(1100px 520px at 50% -200px,#1b2c46 0%,rgba(18,28,45,0) 62%),
+    linear-gradient(180deg,#0a0e16 0%,#080b12 30%,#080b12 100%);
+  background-repeat:no-repeat;
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+  font-size:15px;line-height:1.5;
+  word-break:keep-all;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  min-height:100dvh;
+}
+button{font-family:inherit;font-size:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
+h1,h2,h3,h4,p,ul,li{margin:0}
+.mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+
+/* ---------- screens ---------- */
+#app{min-height:100dvh;display:flex;flex-direction:column}
+.screen{display:none;flex:1;flex-direction:column;min-height:0}
+.screen.active{display:flex}
+
+/* ---------- start ---------- */
+#scr-start{align-items:center;justify-content:center;padding:26px 18px calc(26px + var(--safe-b))}
+.start-wrap{width:100%;max-width:560px}
+.hall-label{
+  display:inline-block;font-size:11px;letter-spacing:.1em;color:#8fa3c6;
+  border:1px solid #2b3a55;border-radius:999px;padding:5px 11px;margin-bottom:16px;
+  background:rgba(30,44,68,.5);line-height:1.4
+}
+.title{font-size:33px;line-height:1.15;font-weight:800;letter-spacing:-.02em}
+.title .accent{display:block;color:var(--gold);font-size:24px;margin-top:7px;letter-spacing:-.01em}
+.title .accent small{display:block;font-size:11px;color:#94a2bd;letter-spacing:.16em;font-weight:600;margin-top:8px}
+.lead{margin-top:16px;color:#c3cee2;font-size:14px;line-height:1.62}
+.lead b{color:#fff}
+.howto{margin:18px 0 14px;display:flex;flex-direction:column;gap:8px}
+.howto-item{
+  display:grid;grid-template-columns:22px 1fr;align-items:center;gap:11px;font-size:13px;color:#cfd9ec;
+  background:linear-gradient(180deg,#151f2f,#111a28);
+  border:1px solid #24314a;border-radius:12px;padding:10px 13px;line-height:1.5
+}
+.howto-item .n{
+  height:22px;border-radius:50%;background:#24314a;color:var(--gold);
+  display:grid;place-items:center;font-size:11.5px;font-weight:700
+}
+.warn-box{
+  font-size:12.5px;color:#f0c9b6;background:rgba(226,73,58,.1);
+  border:1px solid rgba(226,73,58,.32);border-radius:12px;padding:11px 13px;line-height:1.6
+}
+.warn-box b{color:#ff9a8a}
+.btn-primary{
+  width:100%;margin-top:16px;padding:16px;border-radius:14px;
+  background:linear-gradient(180deg,#f2c352,#dfa733);color:#231a05;font-weight:800;font-size:16.5px;
+  box-shadow:0 8px 20px rgba(222,167,51,.28);letter-spacing:.01em
+}
+.btn-primary:active{transform:translateY(1px)}
+.kofi-link{
+  display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;min-height:46px;
+  padding:0 14px;border:1px solid #836b3a;border-radius:12px;background:#2e2a1d;color:#f0dcae;
+  font-size:13.5px;font-weight:700;text-decoration:none;line-height:1.3;text-align:center
+}
+.kofi-link:hover,.kofi-link:focus-visible{background:#3a3324;border-color:#a8894a;color:#fdf0cd}
+.cross-link{
+  display:flex;align-items:center;justify-content:center;gap:7px;margin-top:9px;min-height:44px;
+  padding:8px 14px;border:1px dashed #3b4a68;border-radius:12px;background:rgba(30,44,68,.35);
+  color:#a7bcdc;font-size:13px;font-weight:600;text-decoration:none;line-height:1.35;text-align:center
+}
+.cross-link:hover,.cross-link:focus-visible{border-color:#5d7ba6;background:rgba(40,58,92,.55);color:#e2ecfb}
+.fiction-note{
+  margin-top:13px;text-align:center;font-size:11.5px;color:#7f8ea8;line-height:1.6;
+  border-top:1px solid #1b2537;padding-top:11px
+}
+.fiction-note b{color:#a9b8d0}
+.start-foot{margin-top:10px;text-align:center;font-size:11px;color:#66748c}
+
+/* ---------- HUD ---------- */
+.hud{
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(180deg,rgba(10,14,22,.97),rgba(12,18,28,.94));
+  border-bottom:1px solid #1e2a3e;
+  backdrop-filter:blur(10px);
+  padding:9px 12px 8px;
+}
+.hud-top{display:flex;align-items:center;gap:10px}
+.hud-round{flex:0 0 auto;line-height:1.15;max-width:34%}
+.hud-round-no{font-size:15px;font-weight:800;color:#fff}
+.hud-round-name{font-size:10.5px;color:#8fa3c6;letter-spacing:.03em;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hud-timer{
+  flex:1 1 auto;text-align:center;font-size:25px;font-weight:800;letter-spacing:.02em;
+  color:#dfe8f7;text-shadow:0 2px 12px rgba(0,0,0,.5)
+}
+.hud-timer.warn{color:var(--orange)}
+.hud-timer.dead{color:#ff6a58;animation:pulse 1s infinite}
+.hud-trust{flex:0 0 112px}
+.hud-trust-top{display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;color:#8fa3c6}
+.hud-trust-top b{font-size:14px;color:#e9eefa}
+.bar{height:6px;border-radius:99px;background:#1c2738;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,#2fbf87,#5fd7a4);transition:width .35s ease,background .35s}
+.bar i.mid{background:linear-gradient(90deg,#e0a63a,#f2c352)}
+.bar i.low{background:linear-gradient(90deg,#c8402f,#e2493a)}
+.hud-bottom{display:flex;align-items:center;gap:6px;margin-top:8px}
+.hud-chips{display:flex;align-items:center;gap:6px;overflow-x:auto;flex:1 1 auto;scrollbar-width:none;padding:1px 0}
+.hud-chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;font-size:11px;color:#9fb0ca;background:#131d2b;border:1px solid #22304a;
+  border-radius:999px;padding:4px 9px;white-space:nowrap
+}
+.chip b{color:#fff;font-size:12px;margin-left:2px}
+.chip.combo{color:#f2c352;border-color:#4a3c1a;background:#221d0f}
+.chip.combo b{color:#f2c352}
+.chip.combo.on{box-shadow:0 0 0 1px rgba(242,195,82,.35) inset}
+.chip.hint{color:#cdb9ff;border-color:#3c3160;background:#1d1930}
+.chip.hint b{color:#d9cbff}
+.mute{
+  flex:0 0 auto;width:34px;height:28px;border-radius:8px;border:1px solid #22304a;
+  background:#131d2b;font-size:13px;display:grid;place-items:center
+}
+.mute.off{opacity:.45}
+
+/* ---------- room ---------- */
+.room{flex:1;display:flex;flex-direction:column;gap:10px;padding:10px 12px calc(14px + var(--safe-b));min-height:0}
+.room-board{
+  font-size:11.5px;color:#8ea2c2;background:rgba(19,29,43,.75);border:1px solid #1e2a3e;
+  border-radius:10px;padding:7px 11px;display:flex;align-items:center;gap:8px;line-height:1.4
+}
+.room-board .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);flex:0 0 auto}
+.desk{display:flex;flex-direction:column;gap:11px;min-height:0}
+
+/* promise / reference card */
+.promise-card{
+  position:relative;background:linear-gradient(178deg,#fbf8ef 0%,#f2ecdc 74%,#e9e2cf 100%);
+  color:var(--ink);border-radius:14px;border:1px solid #d3cbb6;
+  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.85);
+  padding:17px 14px 13px 14px
+}
+.promise-card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:14px;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0 3px,rgba(120,110,90,.02) 3px 4px);
+  mix-blend-mode:multiply
+}
+.tape{
+  position:absolute;top:-8px;left:50%;transform:translateX(-50%) rotate(-2.5deg);
+  width:78px;height:20px;background:linear-gradient(180deg,rgba(247,243,231,.97),rgba(226,218,198,.95));
+  border:1px solid rgba(206,196,170,.75);border-radius:1px;
+  box-shadow:0 1px 3px rgba(0,0,0,.16)
+}
+.pc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;position:relative;z-index:1}
+.pc-lb{font-size:10.5px;letter-spacing:.12em;color:#8a8271;font-weight:700}
+.pc-stamp{
+  font-size:9.5px;font-weight:900;letter-spacing:.14em;color:rgba(181,52,42,.72);
+  border:2px solid rgba(181,52,42,.45);border-radius:4px;padding:1px 5px;transform:rotate(-8deg)
+}
+.pc-who{font-size:11.5px;color:#6b6455;margin-top:5px;position:relative;z-index:1}
+.promise-card ul{list-style:none;padding:10px 0 0 2px;margin:0;display:flex;flex-direction:column;gap:9px;position:relative;z-index:1}
+.promise-card li{
+  font-size:13.5px;line-height:1.6;color:#2b3446;padding-left:14px;position:relative
+}
+.promise-card li::before{
+  content:"";position:absolute;left:0;top:.66em;width:5px;height:5px;border-radius:50%;
+  background:#b5342a;opacity:.5
+}
+.promise-card li b{background:linear-gradient(180deg,transparent 58%,rgba(242,195,82,.62) 58%);font-weight:700;color:#16202e}
+.pc-foot{
+  margin-top:11px;padding-top:9px;border-top:1px dashed #d5ccb6;
+  font-size:11.5px;color:#6b6455;line-height:1.5;position:relative;z-index:1
+}
+.pc-foot b{color:#1b2230}
+
+/* evidence document */
+.doc{display:flex;flex-direction:column;gap:9px;min-height:0}
+.doc-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:0 2px}
+.doc-title{font-size:13.5px;font-weight:800;color:#dfe7f5;letter-spacing:-.01em}
+.doc-meta{font-size:10.5px;color:#7d8ca6;margin-top:3px;line-height:1.45}
+.doc-mark{flex:0 0 auto;font-size:10.5px;color:#8fa3c6;border:1px solid #26344c;border-radius:8px;padding:3px 8px;background:#111a28}
+.doc-mark b{color:var(--gold);font-size:12px}
+.clause-list{display:flex;flex-direction:column;gap:8px}
+.clause{
+  position:relative;display:block;width:100%;text-align:left;
+  background:linear-gradient(178deg,#fbf8ee 0%,#f2eddd 70%,#e9e3d0 100%);
+  color:var(--ink);border:1px solid #cfc7b2;border-radius:12px;
+  padding:11px 13px 11px 18px;
+  box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.8);
+  overflow:hidden;transition:transform .12s ease,box-shadow .2s ease,filter .2s
+}
+.clause::before{
+  content:"";position:absolute;left:7px;top:9px;bottom:9px;width:2px;border-radius:2px;
+  background:linear-gradient(180deg,#e2493a,#f2c352);opacity:.4
+}
+.clause:active{transform:translateY(1px)}
+.c-top{display:flex;align-items:center;gap:7px;padding-right:52px}
+.c-no{font-size:10.5px;font-weight:800;color:#6c6555;background:#e6dfcc;border-radius:5px;padding:1px 6px;letter-spacing:.02em}
+.c-tag{font-size:10px;color:#8a8271;letter-spacing:.04em}
+.c-title{font-size:14.5px;font-weight:800;letter-spacing:-.01em;margin-top:5px;color:#18212e}
+.c-prev{
+  font-size:11.5px;color:#6b6455;line-height:1.5;margin-top:3px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+}
+.c-state{margin-top:7px;font-size:10.5px;color:#8a8271;letter-spacing:.04em}
+.clause.done{filter:saturate(.92) brightness(.98)}
+.clause.done .c-prev{opacity:.62}
+.clause.done .c-state{font-weight:700}
+.clause.good .c-state{color:#1f7a54}
+.clause.bad .c-state{color:#b5342a}
+.c-stamp{position:absolute;right:9px;top:10px;display:none;pointer-events:none}
+.clause.done .c-stamp{display:block}
+.c-stamp i{
+  font-style:normal;font-weight:900;font-size:10.5px;letter-spacing:.1em;
+  border:2px solid currentColor;border-radius:5px;padding:1px 5px;transform:rotate(-9deg);display:inline-block
+}
+.c-stamp i.flag{color:#c0392b}
+.c-stamp i.pass{color:#2f6fd0}
+.hint-line{text-align:center;font-size:11px;color:#6f7f99;padding:1px 0 0}
+
+/* side note (desktop) */
+.side-note{display:none}
+.sn-h{font-size:10.5px;letter-spacing:.12em;color:var(--gold);font-weight:800;margin-bottom:7px}
+.sn-row{font-size:11.5px;color:#a9b8d0;line-height:1.55;display:flex;gap:7px;align-items:baseline}
+.sn-row b{flex:0 0 34px;font-size:10.5px;font-weight:800;color:#dfe8f7;border-radius:4px;padding:1px 0;text-align:center;background:#243149}
+.sn-row b.flag{background:#3a1d19;color:#ff9a8a}
+.sn-row b.pass{background:#16293a;color:#8fc3ff}
+.sn-stat{margin-top:10px;padding-top:9px;border-top:1px dashed #26344c;font-size:11.5px;color:#93a2bd;line-height:1.5}
+.sn-stat b{color:#fff}
+
+/* ---------- modal sheet ---------- */
+.modal{
+  position:fixed;inset:0;z-index:60;display:none;
+  align-items:flex-end;justify-content:center;
+  background:rgba(4,7,12,.68);backdrop-filter:blur(3px)
+}
+.modal.open{display:flex;animation:fadeIn .16s ease}
+.modal.open .sheet{animation:sheetUp .24s cubic-bezier(.2,.9,.25,1)}
+.sheet{
+  width:100%;max-width:600px;max-height:92dvh;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#fbf8f0,#f2eddf);
+  color:var(--ink);border-radius:18px 18px 0 0;border:1px solid #d3cbb6;border-bottom:0;
+  box-shadow:0 -14px 40px rgba(0,0,0,.5);overflow:hidden
+}
+.sheet-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 14px;border-bottom:1px dashed #cdc4ae;background:#f6f1e5;flex:0 0 auto
+}
+.sheet-head .lb{font-size:10.5px;letter-spacing:.1em;color:#8a8271;font-weight:700}
+.sheet-head .close{width:30px;height:30px;border-radius:8px;background:#e7e0cf;color:#6d6553;font-size:14px;display:grid;place-items:center}
+.sheet-body{overflow-y:auto;overscroll-behavior:contain;padding:13px 14px 14px;flex:1 1 auto;-webkit-overflow-scrolling:touch}
+.doc-paper{
+  background:#fffdf7;border:1px solid #ddd5c0;border-radius:10px;padding:12px 13px;
+  box-shadow:0 2px 8px rgba(0,0,0,.06)
+}
+.dp-head{display:flex;justify-content:space-between;gap:8px;font-size:9.5px;color:#9a927e;letter-spacing:.02em;border-bottom:1px solid #eee7d6;padding-bottom:6px;margin-bottom:8px}
+.dp-head span:last-child{flex:0 0 auto;font-weight:800;color:#8a5a2a}
+.doc-paper h3{font-size:14.5px;font-weight:800;letter-spacing:-.01em;color:#18212e;margin-bottom:7px}
+.dp-body{font-size:13px;line-height:1.72;color:#2b3446}
+.ph{background:none;transition:background .3s ease}
+.ph.on{background:linear-gradient(180deg,transparent 55%,rgba(242,195,82,.72) 55%);font-weight:700;border-radius:2px;box-shadow:0 0 0 2px rgba(242,195,82,.16)}
+.ask-note{
+  margin-top:11px;font-size:12px;color:#3f4759;background:#efe9d9;border:1px solid #ded6c1;
+  border-radius:10px;padding:9px 11px;line-height:1.55
+}
+.ask-note b{color:#1b2230}
+.hintbox{margin-top:10px;border-radius:10px;padding:9px 11px;background:#1a1428;color:#e6dcff;border:1px solid #342a52;font-size:12px;line-height:1.55;animation:fadeIn .22s ease}
+.hintbox .hb-lb{font-size:10.5px;letter-spacing:.06em;color:#b9a6f0;font-weight:700;margin-bottom:4px}
+.sheet-actions{
+  flex:0 0 auto;padding:10px 13px calc(12px + var(--safe-b));
+  background:#f4efe2;border-top:1px solid #d8cfb8;display:flex;flex-direction:column;gap:8px
+}
+.btn-hint{
+  width:100%;padding:9px;border-radius:10px;font-size:12px;font-weight:700;
+  background:#eae2f5;border:1px solid #cfc1e4;color:#4b3a72;display:flex;align-items:center;justify-content:center;gap:6px
+}
+.btn-hint:disabled{opacity:.45}
+.btn-hint b{font-size:11px;background:#4b3a72;color:#f3ecff;border-radius:99px;padding:1px 7px}
+.judge-row{display:flex;gap:9px}
+.btn-flag,.btn-pass{
+  flex:1;padding:13px 8px;border-radius:12px;font-weight:800;font-size:14px;letter-spacing:-.01em;
+  display:flex;flex-direction:column;align-items:center;gap:1px
+}
+.btn-flag{background:linear-gradient(180deg,#e2493a,#c33a2c);color:#fff;box-shadow:0 6px 14px rgba(196,58,44,.28)}
+.btn-pass{background:linear-gradient(180deg,#f6f1e3,#e7e0cd);color:#2b3446;border:1px solid #cfc6ae}
+.btn-flag small,.btn-pass small{font-size:9.5px;font-weight:600;opacity:.75}
+
+/* verdict */
+.verdict{text-align:center;padding-top:2px}
+.v-stamp{
+  display:inline-block;font-size:23px;font-weight:900;letter-spacing:.14em;
+  border:4px solid currentColor;border-radius:9px;padding:3px 14px;transform:rotate(-6deg);
+  animation:stampIn .34s cubic-bezier(.2,1.4,.4,1)
+}
+.v-stamp.ok{color:#1f7a54}
+.v-stamp.bad{color:#c0392b}
+.v-head{font-size:19px;font-weight:800;letter-spacing:-.02em;margin-top:13px;color:#18212e}
+.v-sub{font-size:12px;color:#6b6455;margin-top:4px}
+.v-delta{
+  display:inline-block;margin-top:9px;font-size:12.5px;font-weight:800;border-radius:999px;padding:3px 11px
+}
+.v-delta.plus{color:#1f6b4a;background:#e2f2e8;border:1px solid #bcdcc8}
+.v-delta.minus{color:#a8321f;background:#fbe6e2;border:1px solid #f0c3ba}
+.v-key{
+  margin-top:13px;font-size:12.5px;line-height:1.6;color:#3a2f14;text-align:left;
+  background:#fbf1d6;border:1px solid #ecd9a6;border-radius:9px;padding:9px 11px
+}
+.v-key b{color:#6b4a06}
+.v-why{margin-top:10px;font-size:12.5px;line-height:1.7;color:#39414f;text-align:left;border-top:1px dashed #d5ccb6;padding-top:10px}
+.v-why b{color:#18212e}
+.v-actions{margin-top:13px;display:flex;gap:9px}
+.v-actions button{flex:1;padding:13px;border-radius:12px;font-weight:800;font-size:14.5px}
+.btn-gold{background:linear-gradient(180deg,#f2c352,#dda32f);color:#241a04}
+.btn-ghost{background:#182335;color:#c4d2e8;border:1px solid #2a3b56}
+
+/* ---------- report screens ---------- */
+.overlay-screen{align-items:center;justify-content:flex-start;padding:22px 16px calc(26px + var(--safe-b))}
+.report{width:100%;max-width:540px}
+.rep-head{text-align:center;margin-bottom:14px}
+.rep-kicker{font-size:11px;letter-spacing:.2em;color:#8fa3c6}
+.rep-title{font-size:25px;font-weight:800;letter-spacing:-.02em;margin-top:6px;color:#fff}
+.rep-sub{font-size:12.5px;color:#93a3bd;margin-top:5px;line-height:1.5}
+.card{
+  background:linear-gradient(180deg,#fbf8ef,#f1ecdd);color:var(--ink);border-radius:16px;
+  border:1px solid #d3cbb6;box-shadow:var(--shadow);padding:14px 15px
+}
+.card + .card{margin-top:11px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:#f6f1e4;border:1px solid #e0d8c4;border-radius:10px;padding:8px 10px}
+.stat .k{font-size:10.5px;color:#8a8271;letter-spacing:.03em}
+.stat .v{font-size:17px;font-weight:800;margin-top:1px;color:#18212e}
+.stat .v.bad{color:#c33a2c}
+.stat .v.good{color:#1f7a54}
+.grade-card{position:relative;overflow:hidden;text-align:center;margin-bottom:11px}
+.glabel{font-size:11px;letter-spacing:.2em;color:#8a8271}
+.grade-num{font-size:70px;font-weight:900;line-height:1;letter-spacing:-.05em;margin:2px 0 0;color:#b5342a}
+.grade-num.gold{color:#a97a11}
+.grade-num.green{color:#1f7a54}
+.grade-desc{font-size:12.5px;color:#3f4759;margin-top:7px;line-height:1.55}
+.grade-seal{
+  position:absolute;right:-18px;top:-16px;width:96px;height:96px;border-radius:50%;
+  border:3px solid rgba(181,52,42,.18);transform:rotate(-14deg)
+}
+.grade-seal::after{
+  content:"판독";position:absolute;inset:0;display:grid;place-items:center;
+  font-size:19px;font-weight:900;color:rgba(181,52,42,.2)
+}
+.sec-h{font-size:11.5px;letter-spacing:.06em;color:#8a5a2a;font-weight:800;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.trap-row{display:flex;gap:8px;align-items:flex-start;padding:9px 0;border-top:1px solid #ece5d4}
+.trap-row:first-of-type{border-top:0;padding-top:2px}
+.trap-badge{
+  flex:0 0 auto;font-size:9.5px;font-weight:900;letter-spacing:.06em;border-radius:5px;padding:2px 6px;
+  border:1.5px solid currentColor;margin-top:2px
+}
+.trap-badge.hit{color:#1f7a54}
+.trap-badge.miss{color:#c0392b}
+.trap-body{min-width:0}
+.trap-name{font-size:12.5px;font-weight:800;color:#18212e;line-height:1.4}
+.trap-name span{font-weight:600;color:#8a8271;font-size:11px;margin-right:4px}
+.trap-why{font-size:11.5px;color:#4a5263;line-height:1.6;margin-top:3px}
+.round-line{
+  display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:#4a5263;
+  padding:6px 0;border-top:1px solid #ece5d4
+}
+.round-line:first-of-type{border-top:0}
+.round-line b{color:#18212e;font-weight:800}
+.note{margin-top:11px;font-size:11.5px;color:#5d5a4e;background:#efe7d4;border-radius:9px;padding:9px 10px;line-height:1.6}
+.btn-row{display:flex;gap:9px;margin-top:12px}
+.btn-row button{flex:1;padding:14px;border-radius:12px;font-weight:800;font-size:14.5px}
+
+/* ---------- toasts ---------- */
+#toasts{
+  position:fixed;left:0;right:0;bottom:0;z-index:90;display:flex;flex-direction:column;
+  align-items:center;gap:7px;padding:0 12px calc(16px + var(--safe-b));pointer-events:none
+}
+body.sheet-open #toasts{bottom:auto;top:0;padding:calc(8px + env(safe-area-inset-top,0px)) 12px 0}
+body.sheet-open .toast{animation:toastInTop .22s ease}
+@keyframes toastInTop{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.toast{
+  max-width:520px;width:100%;border-radius:12px;padding:10px 13px;font-size:12.5px;line-height:1.5;
+  background:rgba(24,34,50,.97);border:1px solid #2c3d58;color:#e6eefc;
+  box-shadow:0 10px 26px rgba(0,0,0,.5);animation:toastIn .22s ease;display:flex;gap:9px;align-items:flex-start
+}
+.toast .tt{font-weight:800;flex:0 0 auto}
+.toast.good{border-color:#2a6b53;background:rgba(18,44,36,.97)}
+.toast.good .tt{color:#5ce0a8}
+.toast.bad{border-color:#7a3229;background:rgba(48,26,24,.97)}
+.toast.bad .tt{color:#ff8b7a}
+.toast.info .tt{color:#8fb4ff}
+
+/* ---------- animations ---------- */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes sheetUp{from{transform:translateY(26px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes stampIn{from{transform:rotate(-6deg) scale(1.5);opacity:0}to{transform:rotate(-6deg) scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
+.shake{animation:shake .4s ease}
+
+/* ---------- desktop ---------- */
+@media (min-width:820px){
+  .hud{padding:11px 22px 10px}
+  .hud-round-no{font-size:17px}
+  .hud-timer{font-size:30px}
+  .hud-trust{flex:0 0 200px}
+  .room{padding:14px 22px 22px;max-width:1120px;width:100%;margin:0 auto}
+  .desk{display:grid;grid-template-columns:352px minmax(0,1fr);gap:16px;align-items:start}
+  .promise-card{position:sticky;top:96px;padding:19px 17px 15px}
+  .side-note{display:block;margin-top:12px;background:linear-gradient(180deg,#141e2d,#111a27);border:1px solid #24314a;border-radius:12px;padding:12px 13px;box-shadow:0 8px 20px rgba(0,0,0,.28)}
+  .promise-card li{font-size:13.5px}
+  .doc-title{font-size:14.5px}
+  .clause-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .clause{min-height:118px}
+  .clause:hover{box-shadow:0 8px 20px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.9)}
+  .title{font-size:41px}
+  .title .accent{font-size:30px}
+  .start-wrap{max-width:600px}
+  .btn-primary:hover{filter:brightness(1.05)}
+  .modal{align-items:center;padding:22px}
+  .sheet{border-radius:18px;border-bottom:1px solid #d3cbb6;max-height:86vh}
+  .report{max-width:580px}
+  .overlay-screen{padding:30px 20px 40px}
+  .stat-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition:none !important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ START ============ -->
+  <section class="screen active" id="scr-start">
+    <div class="start-wrap">
+      <div class="hall-label">가상 계약서 대조 시뮬레이션 · 3라운드 · 3분</div>
+      <h1 class="title">계약서 판독실<span class="accent">작은 글씨의 함정<small>CONTRACT READING ROOM</small></span></h1>
+      <p class="lead">구두로 들은 약속과 <b>실제 계약서 조항</b>을 나란히 놓고, 다른 부분을 찾아내세요.<br>함정은 대개 <b>‘다만’ 뒤, 괄호 안, 숫자 하나</b>에 숨어 있습니다.</p>
+      <div class="howto">
+        <div class="howto-item"><span class="n">1</span><div>왼쪽(모바일에선 위)의 <b>원본 약속·홍보 문구</b>를 먼저 읽기</div></div>
+        <div class="howto-item"><span class="n">2</span><div>조항 카드를 눌러 본문을 읽고 <b>문제 조항 지적</b> 또는 <b>정상 통과</b>로 판정</div></div>
+        <div class="howto-item"><span class="n">3</span><div>3라운드 12개 조항을 <b>3분</b> 안에 판정하고 성적표 받기</div></div>
+      </div>
+      <div class="warn-box">정상 조항을 지적하면 <b>신뢰도 -20</b>. 신뢰도가 0이 되면 판독 자격이 정지됩니다. 라운드마다 <b>돋보기 1회</b>로 수상한 문장을 비출 수 있습니다.</div>
+      <button class="btn-primary" id="btnStart" type="button">판독 시작 · 3분</button>
+      <a class="kofi-link" href="https://ko-fi.com/radarcat" target="_blank" rel="noopener noreferrer" aria-label="개발자 응원하기, Ko-fi 페이지를 새 창으로 엽니다">☕ 개발자 응원하기 (Ko-fi)</a>
+      <a class="cross-link" href="https://minsu920109-hub.github.io/exam-hall/">📝 제7시험장: 신호를 찾아라 하러 가기</a>
+      <p class="fiction-note"><b>100% 창작 게임이며 실제 법률 자문이 아닙니다.</b><br>등장하는 회사·인물·계약서·약관은 모두 가상이며, 실제 계약서 작성에는 전문가 검토가 필요합니다.</p>
+      <div class="start-foot">레이더캣 · 계약서 판독실 v1.0 · 3라운드 12조항</div>
+    </div>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section class="screen" id="scr-game">
+    <header class="hud">
+      <div class="hud-top">
+        <div class="hud-round">
+          <div class="hud-round-no" id="hudRound">라운드 1</div>
+          <div class="hud-round-name" id="hudTopic">원룸 임대차 특약</div>
+        </div>
+        <div class="hud-timer mono" id="hudTimer">03:00</div>
+        <div class="hud-trust">
+          <div class="hud-trust-top"><span>신뢰도</span><b id="hudTrustVal">100</b></div>
+          <div class="bar"><i id="hudTrustBar"></i></div>
+        </div>
+      </div>
+      <div class="hud-bottom">
+        <div class="hud-chips">
+          <span class="chip">점수 <b id="hudScore">0</b></span>
+          <span class="chip combo" id="chipCombo">콤보 <b>0</b></span>
+          <span class="chip">판정 <b id="hudProgress">0/4</b></span>
+          <button class="chip hint" id="btnHintChip" type="button">🔍 돋보기 <b id="hudHint">1</b></button>
+        </div>
+        <button class="mute" id="btnMute" type="button" aria-label="효과음 켜기/끄기">🔊</button>
+      </div>
+    </header>
+    <main class="room">
+      <div class="room-board"><span class="dot"></span><span id="roomBoard">원본을 먼저 읽고, 조항을 하나씩 판정하세요</span></div>
+      <div class="desk">
+        <aside class="promise-wrap">
+          <div class="promise-card">
+            <div class="tape" aria-hidden="true"></div>
+            <div class="pc-head"><span class="pc-lb" id="pcLb">구두 약속 · 중개사 설명</span><span class="pc-stamp" aria-hidden="true">원본</span></div>
+            <div class="pc-who" id="pcWho"></div>
+            <ul id="pcList"></ul>
+            <div class="pc-foot">이 말과 계약서 조항이 <b>같은 내용</b>인지 한 줄씩 대조하세요.</div>
+          </div>
+          <div class="side-note">
+            <div class="sn-h">판독 규칙</div>
+            <div class="sn-row"><b class="flag">지적</b><span>원본과 다르면 함정</span></div>
+            <div class="sn-row"><b class="pass">통과</b><span>원본과 같으면 정상</span></div>
+            <div class="sn-stat" id="sideStat">판정 0/4 · 적발 0/3</div>
+          </div>
+        </aside>
+        <section class="doc">
+          <div class="doc-head">
+            <div>
+              <div class="doc-title" id="docTitle"></div>
+              <div class="doc-meta" id="docMeta"></div>
+            </div>
+            <div class="doc-mark">조항 <b id="docCount">4</b></div>
+          </div>
+          <div class="clause-list" id="clauseList"></div>
+          <div class="hint-line">조항을 눌러 판정하세요 · 오판 시 신뢰도 -20</div>
+          <p class="fiction-note">100% 창작 게임이며 실제 법률 자문이 아닙니다.</p>
+        </section>
+      </div>
+    </main>
+  </section>
+
+  <!-- ============ ROUND REPORT ============ -->
+  <section class="screen overlay-screen" id="scr-round">
+    <div class="report" id="roundReport"></div>
+  </section>
+
+  <!-- ============ FINAL ============ -->
+  <section class="screen overlay-screen" id="scr-final">
+    <div class="report" id="finalReport"></div>
+  </section>
+
+</div>
+
+<!-- clause sheet -->
+<div class="modal" id="sheet" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetLb">
+    <div class="sheet-head">
+      <div class="lb" id="sheetLb">조항 검토</div>
+      <div class="sheet-head-right"><button class="close" id="btnClose" type="button" aria-label="닫기">✕</button></div>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+    <div class="sheet-actions" id="sheetActions">
+      <button class="btn-hint" id="btnHint" type="button">🔍 돋보기로 다시 읽기 <b id="hintBadge">1</b></button>
+      <div class="judge-row">
+        <button class="btn-flag" id="btnFlag" type="button">문제 조항 지적<small>약속과 다르다</small></button>
+        <button class="btn-pass" id="btnPass" type="button">정상 통과<small>문제 없다</small></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+const $ = function(s, r){ return (r||document).querySelector(s); };
+const $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+const won = function(n){ return Math.round(n).toLocaleString('ko-KR'); };
+
+/* ============================================================
+   DATA — 100% 가상 (실존 회사·인물·사건과 무관)
+   ============================================================ */
+const ROUNDS = [
+  {
+    topic: '원룸 임대차 특약',
+    promiseLb: '구두 약속 · 중개사 설명',
+    promiseWho: '햇살공인중개사사무소 · 중개보조인 이하늘',
+    promise: [
+      '보증금 500만 원, 월세 45만 원이에요. 관리비는 5만 원이고 <b>수도·인터넷까지 포함</b>입니다.',
+      '1년 사시고 나가실 때 보증금은 <b>이사 당일</b>에 바로 돌려드려요.',
+      '주차는 <b>한 대까지 무료</b>입니다.'
+    ],
+    docTitle: '주택임대차계약서 (특약 포함)',
+    docMeta: '문서번호 임대 제2026-118호 · 임대인 (주)달빛구름 주택임대사업부 · 임차인 김가상',
+    clauses: [
+      {
+        no: '제2조', title: '목적물 및 차임', tag: '차임·주차',
+        prev: '보증금 5,000,000원 · 월 차임 450,000원 · 매월 25일 선납 · 주차 1대 무료',
+        body: '임대인은 임차인에게 별지 목적물(안산 달빛마을 3단지 302호, 전용면적 24.5㎡)을 주거용으로 임대한다. 보증금은 금 5,000,000원, 월 차임은 금 450,000원으로 하며, 차임은 매월 25일까지 임대인 지정 계좌로 선납한다. 세대당 주차 1대는 무료로 제공한다.',
+        trap: false,
+        key: '‘500만 원·45만 원·주차 1대 무료’가 모두 그대로 적혀 있습니다.',
+        hint: '숫자를 하나씩 세어 보세요. 원본과 다르면 여기서 잡히는 겁니다.',
+        why: '중개사의 말과 보증금 500만 원, 월세 45만 원, 주차 1대 무료가 모두 일치합니다. 선납일이 25일로 정해진 것도 흔한 조항입니다. 이 조항은 그대로 통과시키면 됩니다.'
+      },
+      {
+        no: '제5조', title: '관리비', tag: '관리비',
+        prev: '관리비 월 50,000원 · 다만 공용전기료·수도요금 별도 정산 · 인터넷 개별 가입',
+        body: '관리비는 월 50,000원으로 한다. 다만 <span class="ph">공용전기료 및 수도요금은 매월 검침 후 사용량에 따라 임차인에게 별도 정산</span>하며, <span class="ph">인터넷 회선은 임차인이 개별 가입</span>한다.',
+        trap: true,
+        key: '‘포함’이라고 했지만 조항에는 ‘다만’이 붙어 있습니다.',
+        hint: '‘다만’ 뒤에 붙은 단서를 읽으세요. 포함된다는 말은 조항 어디에도 없습니다.',
+        why: '중개사는 ‘수도·인터넷 포함’이라고 했지만, 조항은 공용전기료와 수도요금을 사용량만큼 따로 받고 인터넷은 세대가 직접 가입하라고 합니다. 관리비 5만 원은 실제로 더 커집니다.'
+      },
+      {
+        no: '제7조', title: '계약기간 및 갱신', tag: '자동 갱신',
+        prev: '1년 · 3개월 전 서면 통지 없으면 자동 갱신 · 갱신 시 차임 5% 인상',
+        body: '계약기간은 2026년 12월 1일부터 2027년 11월 30일까지 1년으로 한다. 임차인이 기간 만료 <span class="ph">3개월 전까지 서면으로</span> 갱신 거절을 통지하지 아니한 경우, 본 계약은 동일한 조건으로 <span class="ph">1년간 자동 갱신</span>되며, 갱신 시 차임은 직전 차임의 <span class="ph">5% 범위에서 인상</span>할 수 있다.',
+        trap: true,
+        key: '‘1년 살고 나간다’는 말과 ‘자동 갱신’이 정면으로 부딪칩니다.',
+        hint: '나간다고 말하지 않으면 어떻게 되는지, 그때를 알리는 기한도 함께 보세요.',
+        why: '1년만 지내고 나갈 생각이어도, 만료 3개월 전까지 서면으로 알리지 않으면 1년이 자동으로 연장되고 월세가 5%까지 오를 수 있습니다.'
+      },
+      {
+        no: '제9조', title: '보증금의 반환', tag: '보증금',
+        prev: '종료·명도일부터 30일 이내 반환 · 원상복구 비용 공제 후 지급',
+        body: '보증금은 임대차가 종료되고 임차인이 목적물을 명도한 날부터 <span class="ph">30일 이내</span>에 반환한다. 반환 시 미납 차임·관리비와 <span class="ph">원상복구 비용을 공제</span>한 잔액을 지급한다.',
+        trap: true,
+        key: '‘이사 당일’과 ‘30일 이내’는 같은 날이 아닙니다.',
+        hint: '‘당일’이라는 약속과 조항의 날짜를 나란히 놓고 비교하세요.',
+        why: '중개사는 이사 당일 반환한다고 했지만 조항은 30일 이내입니다. 원상복구 비용을 공제할 수 있다는 문장까지 붙어 실제 반환액이 줄 수 있습니다.'
+      }
+    ]
+  },
+  {
+    topic: '프리랜서 외주 용역',
+    promiseLb: '구두 약속 · 의뢰사 담당자 메시지',
+    promiseWho: '(주)모래성 스튜디오 · 담당자 정다정',
+    promise: [
+      '작업비는 300만 원이고 <b>부가세 포함</b>이에요.',
+      '착수금 30% 먼저 드리고, 잔금은 <b>납품 후 2주 안에</b> 검수 끝나면 바로 드릴게요.',
+      '수정은 <b>두 번까지 무료</b>입니다.',
+      '저작권은 작업자분께 있고, 저희는 <b>사용권만</b> 받으면 돼요.'
+    ],
+    docTitle: '용역계약서 (디자인·영상 외주)',
+    docMeta: '문서번호 MOS-2026-0917 · 갑 (주)모래성 스튜디오 · 을 김가상',
+    clauses: [
+      {
+        no: '제3조', title: '용역대금 및 지급', tag: '대금',
+        prev: '3,000,000원(부가세 포함) · 착수금 900,000원(30%) · 잔금 2,100,000원',
+        body: '용역대금은 금 3,000,000원(부가가치세 포함)으로 한다. 갑은 계약 체결일부터 5영업일 이내에 착수금 900,000원을 지급하고, 잔금 2,100,000원은 제6조의 검수 절차에 따라 지급한다.',
+        trap: false,
+        key: '300만 원(부가세 포함), 착수금 30%(90만 원) — 구두 약속 그대로입니다.',
+        hint: '부가세 포함인지 별도인지, 착수금 비율이 30%인지 확인해 보세요.',
+        why: '300만 원(부가세 포함), 착수금 30%(90만 원)가 구두 약속과 정확히 일치합니다. 지급 기한도 계약 후 5영업일로 무리하지 않습니다.'
+      },
+      {
+        no: '제4조', title: '수정 및 추가 작업', tag: '수정 횟수',
+        prev: '무료 수정 2회 · 3회차부터 별도 견적 · 서면 합의 없는 추가 작업은 의무 아님',
+        body: '무료 수정은 2회로 한다. 3회차부터의 수정, 또는 기획 자체가 바뀌는 추가 작업은 별도 견적과 서면 합의 후 진행하며, 합의되지 않은 추가 작업은 을의 의무가 아니다.',
+        trap: false,
+        key: '무료 수정 2회라는 약속과 일치하고, 그 뒤에는 서면 합의를 요구합니다.',
+        hint: '수정 횟수를 세어 보세요. 3회차부터의 조건이 작업자에게 불리한지도 판단해 보세요.',
+        why: '무료 수정 두 번이라는 약속과 일치하고, 그 뒤에는 서면 합의를 요구해 오히려 작업자를 보호합니다. 이 조항은 정상입니다.'
+      },
+      {
+        no: '제6조', title: '검수 및 잔금', tag: '잔금 지연',
+        prev: '검수 30일 이내 · 보완 요청마다 연장(횟수 제한 없음) · 잔금은 검수 완료 후 30일',
+        body: '갑은 결과물을 인도받은 날부터 <span class="ph">30일 이내</span>에 검수를 완료한다. 보완이 필요한 경우 갑은 을에게 보완을 요청하고, 그 기간만큼 검수 기간이 연장된다. <span class="ph">검수 기간 연장 횟수에는 제한이 없다.</span> 잔금은 검수 완료일부터 <span class="ph">30일 이내</span>에 지급한다.',
+        trap: true,
+        key: '‘2주’라고 들었지만 숫자는 30일 두 개이고, 연장에는 제한이 없습니다.',
+        hint: '검수 기간과 잔금 지급 기간을 각각 세어 보세요. 연장 조항도 함께 읽으세요.',
+        why: '2주라고 했지만 검수에 최대 30일, 잔금에 다시 30일이 걸립니다. 게다가 보완 요청마다 기간이 연장되고 횟수 제한이 없어 잔금은 두 달을 넘길 수 있습니다.'
+      },
+      {
+        no: '제8조', title: '지식재산권', tag: '저작권',
+        prev: '저작권 전부 양도 · 포트폴리오 게시 금지 · 위반 시 대금 2배 배상',
+        body: '을이 제작한 결과물의 저작재산권 및 2차적저작물작성권은 갑에게 <span class="ph">전부 양도</span>된다. 을은 결과물을 포트폴리오·SNS·개인 홈페이지에 <span class="ph">게시할 수 없으며</span>, 위반 시 용역대금의 <span class="ph">2배를 배상</span>한다.',
+        trap: true,
+        key: '‘사용권만’이라는 말과 ‘전부 양도’는 정반대입니다.',
+        hint: '첫 문장에 ‘양도’라는 단어가 있습니다. 마지막 문장까지 읽으세요.',
+        why: '구두 약속은 저작권은 작업자, 회사는 사용권이었습니다. 조항은 저작권 전부 양도에 포트폴리오 게시 금지, 위반 시 대금 2배 배상까지 붙입니다. 작업자에게 남는 권리가 없습니다.'
+      }
+    ]
+  },
+  {
+    topic: '구독·환불 약관',
+    promiseLb: '홍보 문구 · 가격 페이지',
+    promiseWho: '구름노트 요금 안내 · 가입 페이지',
+    promise: [
+      '월 <b>9,900원</b>. 언제든 해지할 수 있어요.',
+      '결제 후 <b>7일 안에는 전액 환불</b>해 드립니다.',
+      '연간 결제하면 <b>2개월치 무료</b>! 연 99,000원.',
+      '<b>무료 체험 14일</b>, 카드 등록 없이 시작하세요.'
+    ],
+    docTitle: '구름노트 유료서비스 이용약관 (발췌)',
+    docMeta: '문서번호 GN-TERMS-2026-11 · 운영사 (주)구름노트',
+    clauses: [
+      {
+        no: '제2조', title: '요금', tag: '가격',
+        prev: '월 9,900원(부가세 별도) · 연 99,000원(부가세 별도) · 매월 자동 결제',
+        body: '이용요금은 월 9,900원(<span class="ph">부가가치세 별도</span>)으로 하며, 연간 이용권은 99,000원(부가가치세 별도)으로 한다. 요금은 매월 결제일에 자동 결제된다.',
+        trap: true,
+        key: '가격 페이지에 없던 세 글자, ‘부가세 별도’.',
+        hint: '9,900원 뒤의 괄호를 읽으세요.',
+        why: '홍보 문구는 9,900원을 최종 결제액처럼 보이게 했지만 조항은 부가세 별도입니다. 실제 결제액은 10,890원이 되고, 연간 99,000원에도 부가세가 붙습니다.'
+      },
+      {
+        no: '제3조', title: '무료 체험 및 자동 갱신', tag: '자동 결제',
+        prev: '체험 시작 시 결제수단 등록 · 종료일에 자동 유료 전환 · 30일 전 해지 없으면 갱신',
+        body: '무료 체험은 시작일부터 14일간 제공된다. 회원은 체험 시작 시 <span class="ph">결제수단을 등록</span>하여야 하며, <span class="ph">체험 종료일에 자동으로 유료 구독으로 전환 결제</span>된다. 회원이 갱신 30일 전까지 해지하지 아니한 경우 구독은 동일 조건으로 자동 갱신된다.',
+        trap: true,
+        key: '‘카드 등록 없이’ 체험이라고 했는데, 조항은 카드부터 요구합니다.',
+        hint: '체험을 시작할 때 무엇을 등록해야 하는지 찾으세요.',
+        why: '홍보는 카드 등록 없이 체험이라고 했지만, 조항은 체험 시작 전에 결제수단을 등록하게 하고 14일 뒤 자동으로 유료 결제합니다. 알림을 기대했다면 그대로 결제됩니다.'
+      },
+      {
+        no: '제5조', title: '청약철회 및 환불', tag: '환불',
+        prev: '7일 이내 청약철회 · 단, 콘텐츠 1회 열람 시 제한 · 잔여 기간 일할 계산 없음',
+        body: '회원은 결제일부터 7일 이내에 청약을 철회할 수 있다. 다만 회원이 유료 콘텐츠를 <span class="ph">1회 이상 열람</span>하거나 저장한 경우에는 청약철회가 제한되며, 이 경우 잔여 기간에 대한 환불은 <span class="ph">일할 계산하지 아니한다</span>.',
+        trap: true,
+        key: '‘전액 환불’과 ‘제한’이 한 조항 안에 나란히 있습니다.',
+        hint: '환불을 막는 조건이 무엇인지, 그 조건이 얼마나 쉬운지 생각해 보세요.',
+        why: '7일 안 전액 환불처럼 보이지만, 콘텐츠를 한 번이라도 열면 환불이 제한되고 남은 기간도 일할 계산하지 않습니다. 가입하자마자 한 번 열어 본 사람은 사실상 환불받기 어렵습니다.'
+      },
+      {
+        no: '제7조', title: '해지', tag: '해지',
+        prev: '언제든 해지 · 위약금 없음 · 결제 기간까지 이용 가능',
+        body: '회원은 언제든지 마이페이지에서 구독을 해지할 수 있으며, 해지에 따른 위약금은 발생하지 않는다. 해지 후에도 이미 결제한 이용 기간이 끝날 때까지 서비스를 이용할 수 있다.',
+        trap: false,
+        key: '‘언제든 해지’라는 홍보 문구와 일치하고 위약금도 없습니다.',
+        hint: '해지에 붙은 조건이 있는지, 위약금이 있는지 확인해 보세요.',
+        why: '‘언제든 해지’라는 홍보 문구와 일치하고 위약금도 없습니다. 해지해도 남은 기간을 쓸 수 있다는 점도 회원에게 유리합니다.'
+      }
+    ]
+  }
+];
+
+const TOTAL_TIME = 180;
+const TOTAL_CLAUSES = ROUNDS.reduce(function(a,r){ return a + r.clauses.length; }, 0);
+const TOTAL_TRAPS = ROUNDS.reduce(function(a,r){ return a + r.clauses.filter(function(c){ return c.trap; }).length; }, 0);
+
+/* ============================================================
+   state
+   ============================================================ */
+const st = {
+  round: 0, score: 0, trust: 100, combo: 0, bestCombo: 0,
+  hintLeft: 1, hintUsed: {},
+  results: [], judgments: 0, correct: 0, wrong: 0, trapsFound: 0,
+  roundStartScore: 0, active: null, ended: null, hintShown: false, justJudged: false
+};
+
+const tm = { end: 0, paused: 0, running: false, iv: null };
+
+/* ============================================================
+   sound (safe, optional)
+   ============================================================ */
+let actx = null, muted = false;
+function ac(){
+  if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ actx = null; } }
+  if(actx && actx.state === 'suspended'){ try{ actx.resume(); }catch(e){} }
+  return actx;
+}
+function tone(freq, dur, type, vol, delay){
+  if(muted) return;
+  const a = ac(); if(!a) return;
+  try{
+    const t0 = a.currentTime + (delay||0);
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = type||'sine';
+    o.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(vol==null?0.05:vol, t0+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g); g.connect(a.destination);
+    o.start(t0); o.stop(t0+dur+0.03);
+  }catch(e){}
+}
+const SFX = {
+  tap: function(){ tone(430,.04,'sine',.03); },
+  ok: function(){ tone(620,.07,'sine',.045); tone(880,.1,'sine',.035,.06); },
+  bad: function(){ tone(210,.18,'sawtooth',.05); tone(140,.26,'sawtooth',.045,.09); },
+  stamp: function(){ tone(300,.05,'square',.03); tone(180,.12,'triangle',.04,.04); },
+  round: function(){ tone(523,.1,'triangle',.04); tone(659,.12,'triangle',.035,.1); tone(784,.2,'triangle',.03,.22); },
+  final: function(){ tone(392,.14,'sine',.04); tone(523,.16,'sine',.035,.14); tone(659,.18,'sine',.03,.3); tone(784,.3,'sine',.03,.46); }
+};
+
+/* ============================================================
+   timer
+   ============================================================ */
+function renderTimer(sec){
+  const el = $('#hudTimer');
+  const s = Math.max(0, Math.ceil(sec));
+  el.textContent = String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+  el.classList.toggle('warn', s <= 45 && s > 10);
+  el.classList.toggle('dead', s <= 10);
+}
+function startTimer(){
+  tm.end = Date.now() + TOTAL_TIME*1000;
+  tm.running = true;
+  if(!tm.iv) tm.iv = setInterval(tick, 200);
+  renderTimer(TOTAL_TIME);
+}
+function tick(){
+  if(!tm.running) return;
+  const left = Math.max(0, (tm.end - Date.now())/1000);
+  renderTimer(left);
+  if(left <= 0){
+    tm.running = false;
+    if(tm.iv){ clearInterval(tm.iv); tm.iv = null; }
+    endGame('time');
+  }
+}
+function pauseTimer(){
+  if(!tm.running) return;
+  tm.paused = Math.max(0, (tm.end - Date.now())/1000);
+  tm.running = false;
+}
+function resumeTimer(){
+  if(tm.running || tm.paused <= 0) return;
+  tm.end = Date.now() + tm.paused*1000;
+  tm.running = true;
+}
+function stopTimer(){
+  tm.running = false;
+  if(tm.iv){ clearInterval(tm.iv); tm.iv = null; }
+}
+
+/* ============================================================
+   ui helpers
+   ============================================================ */
+function show(id){
+  $$('.screen').forEach(function(s){ s.classList.toggle('active', s.id === id); });
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+function toast(kind, title, msg){
+  const box = document.createElement('div');
+  box.className = 'toast ' + (kind||'info');
+  box.innerHTML = '<span class="tt">' + title + '</span><span>' + msg + '</span>';
+  $('#toasts').appendChild(box);
+  setTimeout(function(){
+    box.style.transition = 'opacity .3s, transform .3s';
+    box.style.opacity = '0';
+    box.style.transform = 'translateY(8px)';
+    setTimeout(function(){ if(box.parentNode) box.parentNode.removeChild(box); }, 320);
+  }, 2600);
+}
+function vibrate(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+
+function roundSolved(){
+  return st.results.filter(function(r){ return r.round === st.round; }).length;
+}
+function resultOf(round, i){
+  for(let k=0;k<st.results.length;k++){
+    if(st.results[k].round === round && st.results[k].i === i) return st.results[k];
+  }
+  return null;
+}
+
+/* ============================================================
+   hud / board
+   ============================================================ */
+function renderHud(){
+  const r = ROUNDS[st.round];
+  $('#hudRound').textContent = '라운드 ' + (st.round+1);
+  $('#hudTopic').textContent = r.topic;
+  $('#hudTrustVal').textContent = st.trust;
+  const bar = $('#hudTrustBar');
+  bar.style.width = st.trust + '%';
+  bar.className = st.trust <= 30 ? 'low' : (st.trust <= 60 ? 'mid' : '');
+  $('#hudScore').textContent = won(st.score);
+  $('#chipCombo').querySelector('b').textContent = st.combo;
+  $('#chipCombo').classList.toggle('on', st.combo >= 2);
+  $('#hudProgress').textContent = roundSolved() + '/' + r.clauses.length;
+  $('#hudHint').textContent = st.hintLeft;
+  $('#hintBadge').textContent = st.hintLeft;
+  $('#btnHint').disabled = st.hintLeft <= 0;
+  const trapsInRound = r.clauses.filter(function(c){ return c.trap; }).length;
+  const foundInRound = st.results.filter(function(x){ return x.round === st.round && x.trap && x.correct; }).length;
+  $('#sideStat').innerHTML = '판정 <b>' + roundSolved() + '/' + r.clauses.length + '</b> · 적발 <b>' + foundInRound + '/' + trapsInRound + '</b>';
+}
+
+function renderRound(){
+  const r = ROUNDS[st.round];
+  $('#pcLb').textContent = r.promiseLb;
+  $('#pcWho').textContent = r.promiseWho;
+  $('#pcList').innerHTML = r.promise.map(function(t){ return '<li>' + t + '</li>'; }).join('');
+  $('#docTitle').textContent = r.docTitle;
+  $('#docMeta').textContent = r.docMeta;
+  $('#docCount').textContent = r.clauses.length;
+  $('#roomBoard').textContent = '라운드 ' + (st.round+1) + ' · ' + r.topic + ' · 원본과 조항을 대조하세요';
+  renderClauses();
+  renderHud();
+}
+
+function renderClauses(){
+  const r = ROUNDS[st.round];
+  const list = $('#clauseList');
+  list.innerHTML = '';
+  r.clauses.forEach(function(c, i){
+    const res = resultOf(st.round, i);
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'clause' + (res ? ' done' : '') + (res ? (res.correct ? ' good' : ' bad') : '');
+    b.setAttribute('data-i', String(i));
+    let stamp = '';
+    if(res){
+      const label = res.correct ? (res.trap ? '적발' : '통과') : (res.trap ? '놓침' : '오판');
+      const cls = res.correct && !res.trap ? 'pass' : 'flag';
+      stamp = '<div class="c-stamp"><i class="' + cls + '">' + label + '</i></div>';
+    }
+    let state = '검토 필요 · 눌러서 판정';
+    if(res){
+      state = res.correct
+        ? (res.trap ? '함정 적발 · +' + res.gain + '점' : '정상 조항 · +' + res.gain + '점')
+        : (res.trap ? '함정을 놓침 · 신뢰도 -20' : '정상 조항을 지적 · 신뢰도 -20');
+    }
+    b.innerHTML =
+      '<div class="c-top"><span class="c-no">' + c.no + '</span><span class="c-tag">' + c.tag + '</span></div>' +
+      '<div class="c-title">' + c.title + '</div>' +
+      '<div class="c-prev">' + c.prev + '</div>' +
+      '<div class="c-state">' + state + '</div>' + stamp;
+    b.addEventListener('click', function(){ openClause(i); });
+    list.appendChild(b);
+  });
+}
+
+/* ============================================================
+   sheet
+   ============================================================ */
+function openSheet(){
+  const m = $('#sheet');
+  m.classList.add('open');
+  m.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+  document.body.classList.add('sheet-open');
+}
+function closeSheet(){
+  const m = $('#sheet');
+  m.classList.remove('open');
+  m.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+  document.body.classList.remove('sheet-open');
+}
+
+function openClause(i){
+  const r = ROUNDS[st.round], c = r.clauses[i];
+  const res = resultOf(st.round, i);
+  st.active = i;
+  st.hintShown = false;
+  st.justJudged = false;
+  if(res){
+    $('#sheetLb').textContent = '판정 완료 · ' + c.no + ' ' + c.title;
+    $('#sheetActions').style.display = 'none';
+    renderVerdict(res, c);
+  } else {
+    $('#sheetLb').textContent = '조항 검토 · ' + c.no + ' ' + c.title;
+    renderClauseDetail(r, c);
+    $('#sheetActions').style.display = 'flex';
+    renderHud();
+  }
+  openSheet();
+  SFX.tap();
+}
+
+function renderClauseDetail(r, c){
+  $('#sheetBody').innerHTML =
+    '<div class="doc-paper">' +
+      '<div class="dp-head"><span>' + r.docTitle + '</span><span>' + c.no + '</span></div>' +
+      '<h3>' + c.no + ' ' + c.title + '</h3>' +
+      '<p class="dp-body">' + c.body + '</p>' +
+    '</div>' +
+    '<div class="ask-note">이 조항이 <b>원본(구두 약속·홍보 문구)</b>과 다른 부분이 있습니까?</div>' +
+    '<div class="hintbox" id="hintBox" hidden></div>';
+}
+
+function useHint(){
+  const i = st.active;
+  if(!$('#sheet').classList.contains('open') || i === null || i === undefined){
+    toast('info', '돋보기', '먼저 판정할 조항을 눌러 열어 주세요.');
+    return;
+  }
+  const r = ROUNDS[st.round], c = r.clauses[i];
+  if(resultOf(st.round, i)){
+    toast('info', '이미 판정', '판정이 끝난 조항에는 돋보기를 쓸 수 없습니다.');
+    return;
+  }
+  if(st.hintLeft <= 0){
+    toast('info', '돋보기 없음', '이번 라운드의 돋보기를 이미 썼습니다. 다음 라운드에 1회 충전됩니다.');
+    return;
+  }
+  if(st.hintUsed[i]){
+    toast('info', '이미 사용', '이 조항에는 이미 돋보기를 댔습니다.');
+    return;
+  }
+  st.hintLeft--;
+  st.hintUsed[i] = true;
+  st.hintShown = true;
+  const box = $('#hintBox');
+  if(box){
+    box.hidden = false;
+    box.innerHTML = '<div class="hb-lb">🔍 돋보기 · ' + c.hint + '</div><p>' + c.key + '</p>';
+    $$('.ph', $('#sheetBody')).forEach(function(e){ e.classList.add('on'); });
+  }
+  renderHud();
+  SFX.tap();
+}
+
+/* ============================================================
+   judging
+   ============================================================ */
+function judge(flag){
+  const i = st.active;
+  if(i === null || i === undefined) return;
+  const r = ROUNDS[st.round], c = r.clauses[i];
+  if(resultOf(st.round, i)) return;
+
+  const correct = (flag === c.trap);
+  const usedHint = !!st.hintUsed[i];
+  let gain = 0;
+  let deltaTxt = '';
+
+  st.judgments++;
+  if(correct){
+    const base = c.trap ? 120 : 70;
+    const bonus = usedHint ? 0 : Math.min(st.combo, 4) * (c.trap ? 20 : 15);
+    const scaled = Math.round(base * (usedHint ? 0.5 : 1));
+    gain = scaled + bonus;
+    st.score += gain;
+    st.combo++;
+    st.bestCombo = Math.max(st.bestCombo, st.combo);
+    st.correct++;
+    if(c.trap) st.trapsFound++;
+    deltaTxt = '<span class="v-delta plus">+' + gain + '점' + (usedHint ? ' · 돋보기 사용' : (bonus ? ' · 콤보 보너스 +' + bonus : '')) + '</span>';
+  } else {
+    st.trust = Math.max(0, st.trust - 20);
+    st.combo = 0;
+    st.wrong++;
+    deltaTxt = '<span class="v-delta minus">신뢰도 -20</span>';
+  }
+
+  const res = {
+    round: st.round, i: i, trap: c.trap, judgedTrap: flag,
+    correct: correct, usedHint: usedHint, gain: gain
+  };
+  st.results.push(res);
+  st.justJudged = true;
+
+  renderClauses();
+  renderHud();
+  $('#sheetLb').textContent = '판정 결과 · ' + c.no;
+  renderVerdict(res, c, deltaTxt);
+  $('#sheetActions').style.display = 'none';
+
+  if(correct){ SFX.ok(); }
+  else { SFX.bad(); vibrate([30,40,30]); }
+  if(document.querySelector('.sheet')) document.querySelector('.sheet').classList.remove('shake');
+  if(!correct){ void document.querySelector('.sheet').offsetWidth; document.querySelector('.sheet').classList.add('shake'); }
+
+  if(!correct && st.trust >= 70){
+    toast('bad', '신뢰도 ↓', '한 번 더 읽으면 잡을 수 있었습니다. 남은 신뢰도 ' + st.trust);
+  }
+}
+
+function renderVerdict(res, c, deltaTxt){
+  const stamp = res.correct
+    ? (res.trap ? '적발' : '통과')
+    : (res.trap ? '놓침' : '오판');
+  const head = res.correct
+    ? (res.trap ? '함정을 찾아냈습니다' : '정상 조항을 통과시켰습니다')
+    : (res.trap ? '함정을 놓쳤습니다' : '정상 조항을 지적했습니다');
+  const sub = res.correct
+    ? (res.trap ? '작은 글씨 하나가 계약 전체를 바꿉니다.' : '지적하지 않은 판단도 정확한 판단입니다.')
+    : (res.trap ? '이 조항은 서명 전에 반드시 고쳐야 합니다.' : '정상 조항을 함정으로 몰았습니다. 신뢰도가 떨어졌습니다.');
+  let delta = deltaTxt;
+  if(!delta){
+    delta = res.correct
+      ? '<span class="v-delta plus">+' + res.gain + '점' + (res.usedHint ? ' · 돋보기 사용' : '') + '</span>'
+      : '<span class="v-delta minus">신뢰도 -20</span>';
+  }
+  const judged = res.judgedTrap ? '문제 조항으로 지적' : '정상 통과';
+  $('#sheetBody').innerHTML =
+    '<div class="verdict">' +
+      '<div class="v-stamp ' + (res.correct ? 'ok' : 'bad') + '">' + stamp + '</div>' +
+      '<div class="v-head">' + head + '</div>' +
+      '<div class="v-sub">내 판정 · ' + judged + '</div>' +
+      '<div>' + delta + '</div>' +
+      '<div class="v-key">🔍 <b>결정적 문장</b> · ' + c.key + '</div>' +
+      '<div class="v-why">' + c.why + '</div>' +
+      '<div class="v-actions"><button class="btn-gold" id="btnNextClause" type="button">' + nextLabel() + '</button></div>' +
+    '</div>';
+  const nb = $('#btnNextClause');
+  if(nb) nb.addEventListener('click', function(){
+    if(st.justJudged) afterVerdict(); else closeSheet();
+  });
+}
+
+function nextLabel(){
+  if(!st.justJudged) return '닫기';
+  if(st.trust <= 0) return '판독 종료';
+  if(roundSolved() >= ROUNDS[st.round].clauses.length){
+    return st.round >= ROUNDS.length - 1 ? '최종 성적표 보기' : '라운드 마무리';
+  }
+  return '계속 판독';
+}
+
+function afterVerdict(){
+  closeSheet();
+  if(st.ended) return;
+  if(st.trust <= 0){ endGame('trust'); return; }
+  if(roundSolved() >= ROUNDS[st.round].clauses.length){
+    if(st.round >= ROUNDS.length - 1){ endGame('done'); return; }
+    showRoundReport();
+  }
+}
+
+/* ============================================================
+   round report
+   ============================================================ */
+function showRoundReport(){
+  pauseTimer();
+  closeSheet();
+  const r = ROUNDS[st.round];
+  let cCorrect = 0, cWrong = 0, cGain = 0, cTraps = 0, cFound = 0;
+  st.results.forEach(function(x){
+    if(x.round !== st.round) return;
+    if(x.correct) cCorrect++; else cWrong++;
+    cGain += x.gain;
+    if(x.trap){ cTraps++; if(x.correct) cFound++; }
+  });
+  const last = st.round >= ROUNDS.length - 1;
+  const html =
+    '<div class="rep-head">' +
+      '<div class="rep-kicker">ROUND ' + (st.round+1) + ' 종료</div>' +
+      '<div class="rep-title">' + r.topic + '</div>' +
+      '<div class="rep-sub">' + r.docTitle + '</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="stat-grid">' +
+        '<div class="stat"><div class="k">적발한 함정</div><div class="v good">' + cFound + ' / ' + cTraps + '</div></div>' +
+        '<div class="stat"><div class="k">오판</div><div class="v' + (cWrong ? ' bad' : '') + '">' + cWrong + '회</div></div>' +
+        '<div class="stat"><div class="k">이번 라운드 점수</div><div class="v">+' + won(cGain) + '</div></div>' +
+        '<div class="stat"><div class="k">남은 신뢰도</div><div class="v' + (st.trust <= 40 ? ' bad' : '') + '">' + st.trust + '</div></div>' +
+        '<div class="stat"><div class="k">총점</div><div class="v">' + won(st.score) + '</div></div>' +
+        '<div class="stat"><div class="k">최고 콤보</div><div class="v">' + st.bestCombo + '</div></div>' +
+      '</div>' +
+      '<div class="note">' + (cWrong === 0
+        ? '이 라운드는 오판 없이 통과했습니다. 다음 계약서도 같은 방식으로 — <b>숫자·날짜·‘다만’ 뒤</b>를 확인하세요.'
+        : '놓친 조항은 성적표에서 해설로 다시 볼 수 있습니다. <b>‘포함’·‘당일’·‘무료’</b> 같은 말이 나오면 조항에서 같은 말을 찾아보세요.') +
+      '</div>' +
+    '</div>' +
+    '<div class="btn-row"><button class="btn-gold" id="btnNextRound" type="button">' + (last ? '최종 성적표 보기' : '라운드 ' + (st.round+2) + ' 시작') + '</button></div>';
+  $('#roundReport').innerHTML = html;
+  $('#btnNextRound').addEventListener('click', function(){
+    if(last){ endGame('done'); return; }
+    st.round++;
+    st.hintLeft = 1;
+    st.hintUsed = {};
+    st.active = null;
+    st.roundStartScore = st.score;
+    st.justJudged = false;
+    renderRound();
+    show('scr-game');
+    startRoundTimerResume();
+    SFX.round();
+    toast('info', '라운드 ' + (st.round+1), ROUNDS[st.round].topic + ' · 새 계약서가 올라왔습니다.');
+  });
+  show('scr-round');
+  SFX.round();
+}
+
+function startRoundTimerResume(){
+  resumeTimer();
+  if(!tm.running && tm.paused <= 0){
+    // no time started yet (defensive) — give a fresh clock
+    startTimer();
+  }
+}
+
+/* ============================================================
+   final report
+   ============================================================ */
+function gradeOf(){
+  const complete = st.judgments >= TOTAL_CLAUSES;
+  if(st.ended === 'trust') return { g:'F', cls:'', desc:'신뢰도를 모두 잃었습니다. 판독 자격이 정지되었습니다. 다음 판독에서 처음부터 다시 도전하세요.' };
+  if(!complete) return { g:'C', cls:'', desc:'시간 안에 모든 조항을 판독하지 못했습니다. 시간이 남았다면 더 잡았을 함정이 아래 해설에 있습니다.' };
+  if(st.wrong === 0) return { g:'S', cls:'gold', desc:'완벽한 판독입니다. 작은 글씨 하나, 숫자 하나도 놓치지 않았습니다.' };
+  if(st.wrong <= 1) return { g:'A', cls:'green', desc:'거의 모든 함정을 잡아냈습니다. 한 줄만 더 꼼꼼히 읽으면 S입니다.' };
+  if(st.wrong <= 3) return { g:'B', cls:'', desc:'평균적인 판독입니다. ‘다만’ 뒤와 괄호 안을 다시 보는 습관을 들이세요.' };
+  return { g:'C', cls:'', desc:'함정이 여럿 지나갔습니다. 서명 전에 조항을 소리 내어 한 번 읽어 보세요.' };
+}
+
+function endGame(reason){
+  if(st.ended === reason) return;
+  st.ended = reason;
+  stopTimer();
+  closeSheet();
+  document.body.style.overflow = '';
+  document.body.classList.remove('sheet-open');
+
+  const g = gradeOf();
+  const judged = st.judgments;
+  const acc = judged ? Math.round(st.correct / judged * 100) : 0;
+  const timeUsed = Math.max(0, TOTAL_TIME - Math.round(tm.paused || Math.max(0,(tm.end - Date.now())/1000)));
+
+  let reasonLine = '';
+  if(reason === 'time') reasonLine = '시간 초과 · 3분이 지나 판독이 종료되었습니다.';
+  else if(reason === 'trust') reasonLine = '신뢰도 소진 · 판독 자격이 정지되었습니다.';
+  else reasonLine = '3라운드 12개 조항을 모두 판정했습니다.';
+
+  let trapsHtml = '';
+  ROUNDS.forEach(function(r, ri){
+    r.clauses.forEach(function(c, ci){
+      if(!c.trap) return;
+      const res = resultOf(ri, ci);
+      const hit = !!(res && res.correct);
+      const label = res ? (hit ? '적발' : '놓침') : '미판정';
+      trapsHtml +=
+        '<div class="trap-row">' +
+          '<span class="trap-badge ' + (hit ? 'hit' : 'miss') + '">' + label + '</span>' +
+          '<div class="trap-body">' +
+            '<div class="trap-name"><span>R' + (ri+1) + ' ' + c.no + '</span>' + c.title + '</div>' +
+            '<div class="trap-why">' + c.why + '</div>' +
+          '</div>' +
+        '</div>';
+    });
+  });
+
+  let roundLines = '';
+  ROUNDS.forEach(function(r, ri){
+    const rs = st.results.filter(function(x){ return x.round === ri; });
+    const ok = rs.filter(function(x){ return x.correct; }).length;
+    roundLines +=
+      '<div class="round-line"><span>R' + (ri+1) + ' · ' + r.topic + '</span>' +
+      '<span><b>' + ok + '/' + r.clauses.length + '</b> 정확' + (rs.length ? '' : ' · 미판정') + '</span></div>';
+  });
+
+  const html =
+    '<div class="rep-head">' +
+      '<div class="rep-kicker">계약서 판독실 · 최종 성적표</div>' +
+      '<div class="rep-title">판독 결과</div>' +
+      '<div class="rep-sub">' + reasonLine + '</div>' +
+    '</div>' +
+    '<div class="card grade-card">' +
+      '<div class="grade-seal" aria-hidden="true"></div>' +
+      '<div class="glabel">GRADE</div>' +
+      '<div class="grade-num ' + g.cls + '">' + g.g + '</div>' +
+      '<div class="grade-desc">' + g.desc + '</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="stat-grid">' +
+        '<div class="stat"><div class="k">총점</div><div class="v">' + won(st.score) + '</div></div>' +
+        '<div class="stat"><div class="k">판정 정확도</div><div class="v ' + (acc >= 80 ? 'good' : (acc < 60 ? 'bad' : '')) + '">' + acc + '%</div></div>' +
+        '<div class="stat"><div class="k">적발한 함정</div><div class="v good">' + st.trapsFound + ' / ' + TOTAL_TRAPS + '</div></div>' +
+        '<div class="stat"><div class="k">오판</div><div class="v ' + (st.wrong ? 'bad' : '') + '">' + st.wrong + '회</div></div>' +
+        '<div class="stat"><div class="k">최고 콤보</div><div class="v">' + st.bestCombo + '</div></div>' +
+        '<div class="stat"><div class="k">남은 신뢰도</div><div class="v ' + (st.trust <= 40 ? 'bad' : '') + '">' + st.trust + '</div></div>' +
+      '</div>' +
+      '<div style="margin-top:11px">' + roundLines + '</div>' +
+      '<div class="note">실제 계약서라면 서명 전에 <b>금액·기간·갱신·해지·환불</b> 조항을 따로 표시해 두고, 구두 설명과 다른 부분은 특약으로 다시 적어 달라고 요청하세요. 말로 한 약속은 계약서에 없으면 계약이 아닙니다.</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="sec-h">🔍 함정 해설 · ' + TOTAL_TRAPS + '개</div>' + trapsHtml +
+    '</div>' +
+    '<a class="kofi-link" href="https://ko-fi.com/radarcat" target="_blank" rel="noopener noreferrer" aria-label="개발자 응원하기, Ko-fi 페이지를 새 창으로 엽니다">☕ 개발자 응원하기 (Ko-fi)</a>' +
+    '<a class="cross-link" href="https://minsu920109-hub.github.io/exam-hall/">📝 제7시험장: 신호를 찾아라 하러 가기</a>' +
+    '<div class="btn-row"><button class="btn-gold" id="btnAgain" type="button">다시 판독하기</button></div>' +
+    '<p class="fiction-note"><b>100% 창작 게임이며 실제 법률 자문이 아닙니다.</b><br>등장하는 회사·인물·계약서·약관은 모두 가상입니다.</p>';
+
+  $('#finalReport').innerHTML = html;
+  $('#btnAgain').addEventListener('click', restart);
+  show('scr-final');
+  SFX.final();
+}
+
+/* ============================================================
+   start / restart
+   ============================================================ */
+function restart(){
+  st.round = 0; st.score = 0; st.trust = 100; st.combo = 0; st.bestCombo = 0;
+  st.hintLeft = 1; st.hintUsed = {}; st.results = [];
+  st.judgments = 0; st.correct = 0; st.wrong = 0; st.trapsFound = 0;
+  st.roundStartScore = 0; st.active = null; st.ended = null; st.hintShown = false;
+  stopTimer(); tm.paused = 0; tm.end = 0;
+  closeSheet();
+  $('#toasts').innerHTML = '';
+  show('scr-start');
+}
+
+function startGame(){
+  restart();
+  renderRound();
+  show('scr-game');
+  startTimer();
+  SFX.round();
+  toast('info', '라운드 1', ROUNDS[0].topic + ' · 원본을 먼저 읽고 조항을 판정하세요.');
+}
+
+/* ============================================================
+   bind
+   ============================================================ */
+$('#btnStart').addEventListener('click', startGame);
+$('#btnClose').addEventListener('click', closeSheet);
+$('#btnFlag').addEventListener('click', function(){ judge(true); });
+$('#btnPass').addEventListener('click', function(){ judge(false); });
+$('#btnHint').addEventListener('click', useHint);
+$('#btnHintChip').addEventListener('click', function(){
+  if(st.active === null || st.active === undefined){
+    toast('info', '돋보기', '먼저 판정할 조항을 눌러 여세요.');
+    return;
+  }
+  useHint();
+});
+$('#btnMute').addEventListener('click', function(){
+  muted = !muted;
+  $('#btnMute').textContent = muted ? '🔇' : '🔊';
+  $('#btnMute').classList.toggle('off', muted);
+  try{ localStorage.setItem('contractcheck.muted', muted ? '1' : '0'); }catch(e){}
+});
+try{
+  if(localStorage.getItem('contractcheck.muted') === '1'){
+    muted = true;
+    $('#btnMute').textContent = '🔇';
+    $('#btnMute').classList.add('off');
+  }
+}catch(e){}
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){ closeSheet(); }
+});
+$('#sheet').addEventListener('click', function(e){
+  if(e.target === $('#sheet')) closeSheet();
+});
+
+/* boot */
+renderTimer(TOTAL_TIME);
+renderHud();
+})();
+</script>
+</body>
+</html>
