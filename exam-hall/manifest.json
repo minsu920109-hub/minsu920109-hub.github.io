@@ -1,0 +1,20 @@
+{
+  "name": "제7시험장: 신호를 찾아라",
+  "short_name": "제7시험장",
+  "description": "관찰 기록과 등록·제출표를 비교해 가상 부정 기기를 찾아내는 오프라인 추리 게임",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0e16",
+  "theme_color": "#0a0e16",
+  "categories": ["games", "education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
