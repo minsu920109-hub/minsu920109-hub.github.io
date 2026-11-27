@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RadarCat 댓글 봇 (RadarCat Comment Bot) — 앱 소개</title>
+<meta name="description" content="RadarCat 댓글 봇은 레이더캣 유튜브 채널의 새 댓글을 텔레그램으로 알려 주고 버튼 한 번으로 답글을 달 수 있게 해 주는 윈도우 PC용 프로그램입니다.">
+<style>
+  :root { color-scheme: light; }
+  body { margin:0; padding:32px 20px 56px; background:#ffffff; }
+  .wrap { max-width:820px; margin:0 auto; font-family:-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif; font-size:16px; line-height:1.8; color:#222; }
+  h1 { font-size:28px; line-height:1.35; margin:0 0 6px; }
+  h2 { font-size:20px; margin:28px 0 12px; }
+  .sub { margin:0 0 24px; color:#666; font-size:15px; }
+  .nav { border-top:1px solid #e5e5e5; margin:40px 0 0; padding-top:16px; font-size:15px; }
+  .nav a { margin-right:16px; }
+  .foot { font-size:14px; color:#666; margin-top:16px; }
+  a { color:#0b57d0; }
+  hr { border:0; border-top:1px solid #e5e5e5; margin:36px 0 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>RadarCat 댓글 봇 (RadarCat Comment Bot)</h1>
+<p class="sub">레이더캣(Radarcat)이 만드는 인디 게임 채널의 유튜브 댓글 알림·답장 도우미 · 개인 개발자 김민수 · <a href="index.html">레이더캣 홈</a></p>
+
+<h2>무엇을 하는 프로그램인가요?</h2>
+<p>RadarCat 댓글 봇은 <strong>내 유튜브 채널(<a href="https://www.youtube.com/@radarcatgg" target="_blank" rel="noopener">@radarcatgg</a>) 영상에 새 댓글이 달리면, 내 텔레그램으로 알려 주고 버튼 한 번으로 답글을 달 수 있게 해 주는 윈도우 PC용 프로그램</strong>입니다.</p>
+<ul>
+  <li>새 댓글이 달리면 텔레그램으로 <strong>영상 제목 · 작성자 · 댓글 내용</strong> 카드가 옵니다.</li>
+  <li>카드의 버튼으로 <strong>초안 그대로 답장</strong>, <strong>직접 입력</strong>, <strong>건너뛰기</strong>, <strong>작성자 무시</strong>를 고릅니다.</li>
+  <li>원하면 지정한 키워드가 들어온 댓글에만 자동으로 답글을 다는 모드도 켤 수 있습니다(기본은 꺼짐, 속도 제한·중복 차단 적용).</li>
+  <li>같은 댓글에 두 번 알림이나 두 번 답글이 가지 않도록 기록을 남깁니다.</li>
+</ul>
+
+<h2>어떻게 동작하나요?</h2>
+<ol>
+  <li>프로그램은 <strong>사용자 본인의 PC에서 직접 실행</strong>됩니다. 개발자가 운영하는 서버는 없습니다.</li>
+  <li>유튜브 댓글 조회와 답글 게시는 <strong>YouTube Data API v3</strong>와 <strong>Google OAuth 2.0</strong>을 사용합니다. 사용자가 Google 동의 화면에서 직접 권한을 허용한 계정으로만 동작합니다.</li>
+  <li>댓글 기록과 인증 정보는 <strong>사용자 PC 안에만</strong> 저장됩니다.</li>
+  <li>알림을 켠 경우에만, 알림 내용이 사용자가 지정한 <strong>텔레그램</strong>으로 전송됩니다.</li>
+</ol>
+
+<h2>누가 쓰나요?</h2>
+<p>현재는 레이더캣 채널 운영자(개발자 본인)가 <strong>자기 채널의 댓글을 관리하기 위해</strong> 쓰는 개인용 도구입니다. 요청이 있으면 같은 방식으로 다른 크리에이터가 자기 채널에 쓸 수 있게 정리해 공유할 예정입니다.</p>
+
+<h2>약관과 개인정보</h2>
+<ul>
+  <li><a href="privacy.html">개인정보처리방침</a> — 어떤 정보를 어떤 목적으로 다루고, 어디에 저장하며, 어떻게 삭제하는지</li>
+  <li><a href="terms.html">서비스 약관</a> — 이용 조건과 책임 범위</li>
+</ul>
+<p>이 프로그램은 <strong>YouTube API 서비스를 사용</strong>합니다. 사용자는 <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener">YouTube 서비스 약관</a>의 적용을 받으며, Google의 정보 처리에 대해서는 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google 개인정보처리방침</a>을 따릅니다. 개발자는 YouTube 또는 Google과 제휴·후원·보증 관계가 없습니다.</p>
+
+<h2>문의</h2>
+<p>이메일: <a href="mailto:minsu920109@gmail.com">minsu920109@gmail.com</a></p>
+
+<hr>
+<p class="foot">RadarCat Comment Bot is a personal Windows desktop helper that notifies the creator of the RadarCat YouTube channel (@radarcatgg) about new comments and lets them reply with one tap. It runs on the user's own PC using YouTube Data API v3 with the user's own OAuth consent; no developer server is involved. <a href="privacy.html">Privacy Policy</a> and <a href="terms.html">Terms of Service</a> are linked here.</p>
+
+<div class="nav">
+  <a href="index.html">레이더캣 홈</a><a href="comment-bot.html">앱 소개</a><a href="privacy.html">개인정보처리방침</a><a href="terms.html">서비스 약관</a>
+</div>
+
+</div>
+</body>
+</html>
