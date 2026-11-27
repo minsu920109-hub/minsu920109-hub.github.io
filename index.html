@@ -1,67 +1,551 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RadarCat 댓글 봇 (RadarCat Comment Bot) — 앱 소개</title>
-<meta name="description" content="RadarCat 댓글 봇은 레이더캣 유튜브 채널의 새 댓글을 텔레그램으로 알려 주고 버튼 한 번으로 답글을 달 수 있게 해 주는 윈도우 PC용 프로그램입니다.">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>RadarCat · 레이더캣 — 1인 인디게임 스튜디오 김민수</title>
+<meta content="레이더캣(RadarCat)은 김민수 1인 인디게임 스튜디오입니다. 수능 감독관 추리 게임 제7시험장, 고양이 머지 퍼즐, 냥글라스를 웹에서 바로 플레이할 수 있고, 실전 AI 프롬프트 4종을 Ko-fi에 무료로 공개합니다." name="description"/>
+<meta content="#0a0c14" name="theme-color"/>
+<meta content="RadarCat · 레이더캣 — 1인 인디게임 스튜디오" property="og:title"/>
+<meta content="수능 감독관 추리 게임 제7시험장, 고양이 머지 퍼즐, 냥글라스. 설치 없이 웹에서 바로 플레이하는 작은 인디게임 스튜디오." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="ko_KR" property="og:locale"/>
+<link href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230a0c14'/%3E%3Cpath d='M30 44 L26 24 L44 32 Z M70 44 L74 24 L56 32 Z' fill='%234deec0'/%3E%3Cellipse cx='50' cy='56' rx='25' ry='23' fill='%234deec0'/%3E%3Cellipse cx='42' cy='54' rx='4' ry='7' fill='%230a0c14'/%3E%3Cellipse cx='58' cy='54' rx='4' ry='7' fill='%230a0c14'/%3E%3C/svg%3E" rel="icon"/>
 <style>
-  :root { color-scheme: light; }
-  body { margin:0; padding:32px 20px 56px; background:#ffffff; }
-  .wrap { max-width:820px; margin:0 auto; font-family:-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif; font-size:16px; line-height:1.8; color:#222; }
-  h1 { font-size:28px; line-height:1.35; margin:0 0 6px; }
-  h2 { font-size:20px; margin:28px 0 12px; }
-  .sub { margin:0 0 24px; color:#666; font-size:15px; }
-  .nav { border-top:1px solid #e5e5e5; margin:40px 0 0; padding-top:16px; font-size:15px; }
-  .nav a { margin-right:16px; }
-  .foot { font-size:14px; color:#666; margin-top:16px; }
-  a { color:#0b57d0; }
-  hr { border:0; border-top:1px solid #e5e5e5; margin:36px 0 16px; }
+  :root{
+    --bg:#0a0c14;
+    --panel:#141329;
+    --line:rgba(140,170,220,.16);
+    --line-2:rgba(140,170,220,.30);
+    --text:#eef1f8;
+    --muted:#a6afc6;
+    --mint:#4deec0;
+    --amber:#ffb45f;
+    --radius:20px;
+    --max:1120px;
+    color-scheme:dark;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 720px at 10% -10%, rgba(96,62,190,.34), transparent 62%),
+      radial-gradient(900px 620px at 92% -4%, rgba(40,170,150,.16), transparent 58%),
+      radial-gradient(800px 600px at 50% 108%, rgba(255,150,80,.07), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:"Pretendard","Pretendard Variable","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,-apple-system,sans-serif;
+    font-size:17px;
+    line-height:1.75;
+    letter-spacing:-.01em;
+    word-break:keep-all;
+    overflow-wrap:break-word;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  a{color:#8ef0d4}
+  a:hover{color:#b6ffe9}
+  .skip{position:absolute;left:-9999px;top:0}
+  .skip:focus{left:16px;top:16px;background:var(--mint);color:#06120f;padding:10px 16px;border-radius:10px;z-index:99;font-weight:700}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+
+  /* ── header ── */
+  .site-head{position:sticky;top:0;z-index:50;background:rgba(10,12,20,.76);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+  .head-in{max-width:var(--max);margin:0 auto;padding:0 24px;height:70px;display:flex;align-items:center;gap:16px}
+  .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text);flex:0 0 auto}
+  .brand svg{width:36px;height:36px;flex:0 0 auto}
+  .brand-txt{line-height:1.15}
+  .brand-txt b{display:block;font-size:1.06rem;font-weight:800;letter-spacing:-.02em}
+  .brand-txt span{display:block;font-size:.7rem;font-weight:700;letter-spacing:.16em;color:var(--mint)}
+  .site-nav{margin-left:auto;display:flex;align-items:center;gap:24px;font-size:.94rem}
+  .site-nav a{color:#bcc5d9;text-decoration:none;padding:5px 0;border-bottom:1px solid transparent}
+  .site-nav a:hover{color:#fff;border-color:var(--mint)}
+  .head-cta{flex:0 0 auto}
+
+  /* ── buttons ── */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:15px 24px;border-radius:14px;font-weight:800;text-decoration:none;font-size:1rem;letter-spacing:-.01em;transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease}
+  .btn .ico{font-size:1.1em;line-height:1}
+  .btn-primary{background:linear-gradient(180deg,#63f7cd,#31d0a6);color:#04140f;box-shadow:0 12px 30px rgba(56,220,180,.26)}
+  .btn-primary:hover{color:#04140f;transform:translateY(-2px);box-shadow:0 16px 34px rgba(56,220,180,.34)}
+  .btn-ghost{background:rgba(255,180,95,.09);color:#ffd6a8;border:1px solid rgba(255,180,95,.46)}
+  .btn-ghost:hover{background:rgba(255,180,95,.18);color:#ffe7cc;transform:translateY(-2px)}
+  .btn-sm{padding:11px 18px;font-size:.9rem;border-radius:11px}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+
+  /* ── hero ── */
+  .hero{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr);gap:52px;align-items:center;padding:72px 0 56px}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.76rem;font-weight:800;letter-spacing:.15em;color:var(--mint);border:1px solid rgba(77,238,192,.34);background:rgba(77,238,192,.08);padding:7px 15px;border-radius:999px}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint)}
+  h1{margin:22px 0 20px;font-size:clamp(2.05rem,4.4vw,3.3rem);line-height:1.24;letter-spacing:-.04em;font-weight:800}
+  h1 em{font-style:normal;word-break:keep-all;background:linear-gradient(100deg,#5df3c8 6%,#9df7dd 44%,#ffc078 96%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{margin:0 0 30px;max-width:36em;font-size:1.06rem;color:#c3cbe0}
+  .lead b{color:#fff;font-weight:700}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin:24px 0 0;padding:0;list-style:none;font-size:.86rem;color:var(--muted)}
+  .hero-meta li{display:flex;align-items:center;gap:8px}
+  .hero-meta li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--mint);opacity:.75;flex:0 0 auto}
+  .hero-art{position:relative;display:grid;place-items:center}
+  .radar-card{position:relative;width:100%;max-width:430px;aspect-ratio:1/1;border-radius:34px;border:1px solid var(--line-2);background:radial-gradient(circle at 50% 42%,rgba(96,62,190,.42),rgba(14,12,26,.94) 72%);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 34px 90px rgba(0,0,0,.5);overflow:hidden}
+  .mascot{display:block;width:100%;height:100%}
+  .chip{position:absolute;padding:8px 14px;border-radius:999px;font-size:.79rem;font-weight:800;letter-spacing:-.01em;background:rgba(9,11,20,.86);border:1px solid var(--line-2);white-space:nowrap}
+  .chip-a{top:16px;left:16px;color:#a9ffe6}
+  .chip-b{bottom:18px;right:16px;color:#ffd3a2}
+  .sweep{transform-box:view-box;transform-origin:160px 178px;animation:spin 9s linear infinite}
+  .blink{animation:blink 2.6s ease-in-out infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes blink{0%,100%{opacity:.35}50%{opacity:1}}
+
+  /* ── stats ── */
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:0;margin:0 0 8px;list-style:none}
+  .stat{padding:18px 20px;border-radius:16px;background:rgba(255,255,255,.032);border:1px solid var(--line)}
+  .stat b{display:block;font-size:1.55rem;line-height:1.3;color:#fff;letter-spacing:-.03em}
+  .stat b i{font-style:normal;color:var(--mint)}
+  .stat span{display:block;font-size:.82rem;color:var(--muted);letter-spacing:0}
+
+  /* ── sections ── */
+  .section{padding:66px 0 6px;scroll-margin-top:88px}
+  .kicker{display:block;font-size:.75rem;font-weight:800;letter-spacing:.18em;color:var(--amber);margin:0 0 10px}
+  h2{margin:0 0 14px;font-size:clamp(1.55rem,2.9vw,2.15rem);line-height:1.32;letter-spacing:-.035em;font-weight:800}
+  .sec-lead{margin:0 0 30px;max-width:44em;color:#b8c1d7;font-size:1rem}
+
+  /* ── games ── */
+  .games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+  .game{display:flex;flex-direction:column;border-radius:var(--radius);border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));overflow:hidden;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+  .game:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:0 20px 46px rgba(0,0,0,.34)}
+  .thumb{position:relative;aspect-ratio:16/9;display:grid;place-items:center;border-bottom:1px solid var(--line);overflow:hidden}
+  .thumb svg{width:58%;max-width:270px;height:auto;max-height:84%}
+  .t-exam{background:radial-gradient(circle at 26% 18%,#1d3054,#0b101d 72%)}
+  .t-merge{background:radial-gradient(circle at 72% 16%,#2f2554,#100e1d 72%)}
+  .t-nyang{background:radial-gradient(circle at 48% 12%,#173448,#0a121d 72%)}
+  .t-contract{background:radial-gradient(circle at 32% 18%,#33263f,#0f0d17 72%)}
+  .game-body{padding:22px 22px 24px;display:flex;flex-direction:column;gap:11px;flex:1}
+  .tags{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+  .tag{font-size:.73rem;font-weight:800;letter-spacing:.04em;color:#a9f7e0;background:rgba(77,238,192,.1);border:1px solid rgba(77,238,192,.28);padding:3px 10px;border-radius:999px}
+  .badge{font-size:.73rem;font-weight:800;padding:3px 10px;border-radius:999px;background:rgba(255,180,95,.11);border:1px solid rgba(255,180,95,.34);color:#ffcf9c}
+  .badge-dev{background:rgba(150,160,255,.11);border-color:rgba(150,160,255,.32);color:#cbd0ff}
+  .game h3{margin:0;font-size:1.22rem;line-height:1.4;letter-spacing:-.025em}
+  .game h3 small{display:block;font-size:.78rem;font-weight:700;color:var(--muted);letter-spacing:.02em;margin-top:3px}
+  .game p{margin:0;font-size:.95rem;color:#b7c0d6}
+  .bullets{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:5px 16px;font-size:.84rem;color:var(--muted)}
+  .bullets li{position:relative;padding-left:12px}
+  .bullets li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--mint);opacity:.8}
+  .game-actions{margin-top:auto;padding-top:8px;display:flex;flex-wrap:wrap;gap:10px}
+
+  /* ── kofi ── */
+  .kofi{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:36px;align-items:start;padding:36px;border-radius:26px;border:1px solid var(--line-2);background:linear-gradient(135deg,rgba(77,238,192,.07),rgba(255,180,95,.08) 92%),rgba(255,255,255,.022)}
+  .kofi h2{margin-bottom:12px}
+  .kofi .sec-lead{margin-bottom:22px;font-size:.98rem}
+  .kofi-note{margin:16px 0 0;font-size:.8rem;color:#8d97ae}
+  .prompts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+  .prompt{padding:16px 16px 17px;border-radius:14px;background:rgba(8,10,18,.62);border:1px solid var(--line)}
+  .prompt .n{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.1em;color:var(--mint)}
+  .prompt b{display:block;margin:5px 0 4px;font-size:.97rem;line-height:1.5;letter-spacing:-.02em}
+  .prompt span{display:block;font-size:.82rem;line-height:1.62;color:var(--muted)}
+
+  /* ── channels ── */
+  .chans{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:13px}
+  .chan{display:flex;align-items:center;gap:13px;padding:16px 17px;border-radius:15px;border:1px solid var(--line);background:rgba(255,255,255,.03);text-decoration:none;color:var(--text);transition:border-color .16s ease,background .16s ease,transform .16s ease}
+  .chan:hover{color:#fff;border-color:rgba(77,238,192,.46);background:rgba(77,238,192,.06);transform:translateY(-2px)}
+  .chan svg{width:26px;height:26px;flex:0 0 auto;color:var(--mint)}
+  .chan-txt{min-width:0}
+  .chan-txt b{display:block;font-size:.94rem;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chan-txt span{display:block;font-size:.79rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chan-mail .chan-txt span{white-space:normal;word-break:normal;overflow-wrap:anywhere;line-height:1.45}
+
+  /* ── footer ── */
+  .site-foot{margin-top:56px;border-top:1px solid var(--line);padding:34px 0 48px;color:var(--muted);font-size:.86rem}
+  .f-links{display:flex;flex-wrap:wrap;gap:8px 20px;margin:0 0 14px;padding:0;list-style:none}
+  .f-links a{color:#cdd5e6;text-decoration:none}
+  .f-links a:hover{color:var(--mint)}
+  .f-links li+li{position:relative}
+  .f-note{max-width:74em;margin:0 0 16px;font-size:.77rem;line-height:1.72;color:#7f89a0}
+  .f-copy{margin:0;font-size:.85rem;color:#aab3c7;font-weight:700}
+
+  @media (max-width:980px){
+    .hero{grid-template-columns:1fr;gap:34px;padding:48px 0 42px}
+    .hero-art{order:2}
+    .radar-card{max-width:340px}
+    .games{grid-template-columns:1fr}
+    .kofi{grid-template-columns:1fr;gap:26px;padding:26px}
+    .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:760px){
+    .site-nav{display:none}
+    .head-in{height:64px}
+    .head-cta{margin-left:auto}
+    .section{padding:52px 0 4px}
+  }
+  @media (max-width:560px){
+    body{font-size:16px}
+    .wrap,.head-in{padding-left:18px;padding-right:18px}
+    .prompts{grid-template-columns:1fr}
+    .cta-row{flex-direction:column;align-items:stretch}
+    .cta-row .btn{width:100%}
+    .hero-meta{font-size:.8rem;gap:4px 14px}
+    .game-actions .btn,.kofi .btn{width:100%}
+    .stat{padding:15px 16px}
+    .stat b{font-size:1.35rem}
+    .game-body{padding:19px 18px 21px}
+    .chip{font-size:.72rem;padding:6px 11px}
+    .f-note{font-size:.74rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
 </style>
-</head>
+<style>
+.lang-pick select{background:#141329;color:#eef1f8;border:1px solid rgba(140,170,220,.30);border-radius:10px;padding:6px 8px;font:inherit;font-size:.86rem}
+.lang-pick{margin-left:auto}.site-nav + .lang-pick{margin-left:0}
+@media (max-width:760px){.lang-pick select{max-width:104px;padding:6px 4px}.head-cta{margin-left:8px!important;padding:9px 10px;font-size:.78rem;white-space:nowrap}.brand-txt span{display:none}}
+@media (max-width:560px){html:not([lang="ko"]) .head-cta{display:none}}
+html:not([lang="ko"]) main *{overflow-wrap:break-word}
+html[lang="ja"] main *,html[lang="zh-Hans"] main *{overflow-wrap:anywhere}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style></head>
 <body>
+<a class="skip" data-i18n="k01" href="#main">본문으로 건너뛰기</a>
+<header class="site-head">
+<div class="head-in">
+<a aria-label="레이더캣 홈" class="brand" data-i18n-aria="레이더캣 홈" href="index.html">
+<svg aria-hidden="true" focusable="false" viewbox="0 0 100 100">
+<path d="M31 45 L27 22 L46 31 Z M69 45 L73 22 L54 31 Z" fill="#4deec0" opacity=".55"></path>
+<ellipse cx="50" cy="56" fill="#171331" rx="26" ry="24" stroke="#4deec0" stroke-width="2.6"></ellipse>
+<ellipse cx="41" cy="54" fill="#4deec0" rx="4.6" ry="7.4"></ellipse>
+<ellipse cx="59" cy="54" fill="#4deec0" rx="4.6" ry="7.4"></ellipse>
+<ellipse cx="41" cy="55" fill="#0a0c14" rx="1.9" ry="4.6"></ellipse>
+<ellipse cx="59" cy="55" fill="#0a0c14" rx="1.9" ry="4.6"></ellipse>
+<path d="M47 66 L53 66 L50 70 Z" fill="#ffb45f"></path>
+</svg>
+<span class="brand-txt" data-i18n="k02"><b>RadarCat</b><span>레이더캣</span></span>
+</a>
+<nav aria-label="주요 메뉴" class="site-nav" data-i18n-aria="주요 메뉴">
+<a data-i18n="k03" href="#games">게임</a>
+<a data-i18n="k04" href="#prompts">무료 프롬프트</a>
+<a data-i18n="k05" href="#channels">채널</a>
+<a data-i18n="k06" href="comment-bot.html">댓글 봇</a>
+</nav>
+<div class="lang-pick"><label class="sr-only" for="lang-sel">Language</label><select aria-label="Language" id="lang-sel"><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option><option value="vi">Tiếng Việt</option><option value="zh">简体中文</option><option value="es">Español</option><option value="pt">Português</option></select></div><a class="btn btn-primary btn-sm head-cta" data-i18n="k07" href="https://minsu920109-hub.github.io/exam-hall/" rel="noopener" target="_blank">🎮 제7시험장</a>
+</div>
+</header>
+<main id="main">
 <div class="wrap">
-
-<h1>RadarCat 댓글 봇 (RadarCat Comment Bot)</h1>
-<p class="sub">레이더캣(Radarcat)이 만드는 인디 게임 채널의 유튜브 댓글 알림·답장 도우미 · 개인 개발자 김민수</p>
-
-<h2>무엇을 하는 프로그램인가요?</h2>
-<p>RadarCat 댓글 봇은 <strong>내 유튜브 채널(<a href="https://www.youtube.com/@radarcatgg" target="_blank" rel="noopener">@radarcatgg</a>) 영상에 새 댓글이 달리면, 내 텔레그램으로 알려 주고 버튼 한 번으로 답글을 달 수 있게 해 주는 윈도우 PC용 프로그램</strong>입니다.</p>
-<ul>
-  <li>새 댓글이 달리면 텔레그램으로 <strong>영상 제목 · 작성자 · 댓글 내용</strong> 카드가 옵니다.</li>
-  <li>카드의 버튼으로 <strong>초안 그대로 답장</strong>, <strong>직접 입력</strong>, <strong>건너뛰기</strong>, <strong>작성자 무시</strong>를 고릅니다.</li>
-  <li>원하면 지정한 키워드가 들어온 댓글에만 자동으로 답글을 다는 모드도 켤 수 있습니다(기본은 꺼짐, 속도 제한·중복 차단 적용).</li>
-  <li>같은 댓글에 두 번 알림이나 두 번 답글이 가지 않도록 기록을 남깁니다.</li>
-</ul>
-
-<h2>어떻게 동작하나요?</h2>
-<ol>
-  <li>프로그램은 <strong>사용자 본인의 PC에서 직접 실행</strong>됩니다. 개발자가 운영하는 서버는 없습니다.</li>
-  <li>유튜브 댓글 조회와 답글 게시는 <strong>YouTube Data API v3</strong>와 <strong>Google OAuth 2.0</strong>을 사용합니다. 사용자가 Google 동의 화면에서 직접 권한을 허용한 계정으로만 동작합니다.</li>
-  <li>댓글 기록과 인증 정보는 <strong>사용자 PC 안에만</strong> 저장됩니다.</li>
-  <li>알림을 켠 경우에만, 알림 내용이 사용자가 지정한 <strong>텔레그램</strong>으로 전송됩니다.</li>
-</ol>
-
-<h2>누가 쓰나요?</h2>
-<p>현재는 레이더캣 채널 운영자(개발자 본인)가 <strong>자기 채널의 댓글을 관리하기 위해</strong> 쓰는 개인용 도구입니다. 요청이 있으면 같은 방식으로 다른 크리에이터가 자기 채널에 쓸 수 있게 정리해 공유할 예정입니다.</p>
-
-<h2>약관과 개인정보</h2>
-<ul>
-  <li><a href="privacy.html">개인정보처리방침</a> — 어떤 정보를 어떤 목적으로 다루고, 어디에 저장하며, 어떻게 삭제하는지</li>
-  <li><a href="terms.html">서비스 약관</a> — 이용 조건과 책임 범위</li>
-</ul>
-<p>이 프로그램은 <strong>YouTube API 서비스를 사용</strong>합니다. 사용자는 <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener">YouTube 서비스 약관</a>의 적용을 받으며, Google의 정보 처리에 대해서는 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google 개인정보처리방침</a>을 따릅니다. 개발자는 YouTube 또는 Google과 제휴·후원·보증 관계가 없습니다.</p>
-
-<h2>문의</h2>
-<p>이메일: <a href="mailto:minsu920109@gmail.com">minsu920109@gmail.com</a></p>
-
-<hr>
-<p class="foot">RadarCat Comment Bot is a personal Windows desktop helper that notifies the creator of the RadarCat YouTube channel (@radarcatgg) about new comments and lets them reply with one tap. It runs on the user's own PC using YouTube Data API v3 with the user's own OAuth consent; no developer server is involved. <a href="privacy.html">Privacy Policy</a> and <a href="terms.html">Terms of Service</a> are linked here.</p>
-
-<div class="nav">
-  <a href="index.html">앱 소개</a><a href="privacy.html">개인정보처리방침</a><a href="terms.html">서비스 약관</a>
+<section class="hero">
+<div class="hero-copy">
+<span class="eyebrow" data-i18n="k08"><span aria-hidden="true" class="dot"></span>RADARCAT · 1인 인디게임 스튜디오</span>
+<h1 data-i18n="k09">작은 고양이 게임을<br/>혼자 만들어<br/><em>바로 공개합니다.</em></h1>
+<p class="lead" data-i18n="k10">레이더캣(RadarCat)은 <b>김민수</b>의 1인 인디게임 스튜디오입니다. 기획부터 코드·그림·소리까지 직접 만들어 수능 감독관 추리 게임 〈제7시험장〉, 고양이 머지 퍼즐, 수집형 게임 〈냥글라스〉를 <b>설치 없이 웹에서</b> 플레이할 수 있게 공개합니다. AI 크리에이터로 매일 쓰는 실전 프롬프트도 Ko-fi에 무료로 올려 둡니다.</p>
+<div class="cta-row">
+<a class="btn btn-primary" data-i18n="k11" href="https://minsu920109-hub.github.io/exam-hall/" rel="noopener" target="_blank"><span aria-hidden="true" class="ico">🎮</span>제7시험장 바로 플레이</a>
+<a class="btn btn-ghost" data-i18n="k12" href="https://ko-fi.com/radarcat" rel="noopener" target="_blank"><span aria-hidden="true" class="ico">☕</span>Ko-fi 응원하기</a>
 </div>
-
+<ul class="hero-meta">
+<li data-i18n="k13">웹에서 무료 플레이</li>
+<li data-i18n="k14">모바일·PC 지원</li>
+<li data-i18n="k15">Google Play 출시 준비 중</li>
+</ul>
 </div>
-</body>
+<div class="hero-art">
+<div class="radar-card">
+<svg aria-label="레이더 신호를 두른 고양이 마스코트" class="mascot" data-i18n-aria="레이더 신호를 두른 고양이 마스코트" role="img" viewbox="0 0 320 356">
+<defs>
+<radialgradient cx="50%" cy="44%" id="glow" r="56%">
+<stop offset="0" stop-color="#4deec0" stop-opacity=".22"></stop>
+<stop offset="1" stop-color="#4deec0" stop-opacity="0"></stop>
+</radialgradient>
+<lineargradient id="headGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0" stop-color="#2c2554"></stop>
+<stop offset="1" stop-color="#161231"></stop>
+</lineargradient>
+<lineargradient id="sweepGrad" x1="0" x2="1" y1="0" y2="0">
+<stop offset="0" stop-color="#4deec0" stop-opacity=".26"></stop>
+<stop offset="1" stop-color="#4deec0" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<circle cx="160" cy="178" fill="url(#glow)" r="150"></circle>
+<g fill="none" stroke="#4deec0">
+<circle cx="160" cy="178" r="132" stroke-opacity=".12" stroke-width="1.6"></circle>
+<circle cx="160" cy="178" r="104" stroke-opacity=".17" stroke-width="1.6"></circle>
+<circle cx="160" cy="178" r="76" stroke-dasharray="3 9" stroke-opacity=".22" stroke-width="1.6"></circle>
+</g>
+<g class="sweep">
+<path d="M160 178 L160 46 A132 132 0 0 1 245 77 Z" fill="url(#sweepGrad)"></path>
+<path d="M160 178 L160 46" stroke="#4deec0" stroke-opacity=".5" stroke-width="2"></path>
+</g>
+<circle cx="160" cy="46" fill="#4deec0" r="4.5"></circle>
+<circle cx="252" cy="176" fill="#4deec0" fill-opacity=".7" r="3.5"></circle>
+<circle cx="86" cy="120" fill="#ffb45f" fill-opacity=".8" r="3"></circle>
+<!-- ears -->
+<path d="M104 150 L92 74 L152 106 Z" fill="url(#headGrad)" stroke="#4deec0" stroke-linejoin="round" stroke-width="3.4"></path>
+<path d="M216 150 L228 74 L168 106 Z" fill="url(#headGrad)" stroke="#4deec0" stroke-linejoin="round" stroke-width="3.4"></path>
+<path d="M109 137 L102 92 L141 111 Z" fill="#ffb45f" fill-opacity=".5"></path>
+<path d="M211 137 L218 92 L179 111 Z" fill="#ffb45f" fill-opacity=".5"></path>
+<!-- head -->
+<ellipse cx="160" cy="188" fill="url(#headGrad)" rx="74" ry="70" stroke="#4deec0" stroke-width="3.4"></ellipse>
+<!-- eyes -->
+<ellipse cx="132" cy="184" fill="#4deec0" rx="12.5" ry="15"></ellipse>
+<ellipse cx="188" cy="184" fill="#4deec0" rx="12.5" ry="15"></ellipse>
+<ellipse cx="132" cy="186" fill="#0a0c14" rx="5" ry="10"></ellipse>
+<ellipse cx="188" cy="186" fill="#0a0c14" rx="5" ry="10"></ellipse>
+<circle cx="128.5" cy="178" fill="#eafff9" fill-opacity=".92" r="2.8"></circle>
+<circle cx="184.5" cy="178" fill="#eafff9" fill-opacity=".92" r="2.8"></circle>
+<!-- nose & mouth -->
+<path d="M152 208 L168 208 L160 218 Z" fill="#ffb45f"></path>
+<path d="M160 218 v6 M160 224 q-9 10 -17 2 M160 224 q9 10 17 2" fill="none" stroke="#4deec0" stroke-linecap="round" stroke-opacity=".8" stroke-width="2.6"></path>
+<!-- whiskers -->
+<g stroke="#4deec0" stroke-linecap="round" stroke-opacity=".55" stroke-width="2.4">
+<path d="M94 198 L64 188"></path><path d="M94 210 L62 210"></path><path d="M96 222 L68 232"></path>
+<path d="M226 198 L256 188"></path><path d="M226 210 L258 210"></path><path d="M224 222 L252 232"></path>
+</g>
+<!-- collar & bell -->
+<path d="M106 250 q54 26 108 0" fill="none" stroke="#ffb45f" stroke-linecap="round" stroke-opacity=".85" stroke-width="5.5"></path>
+<circle cx="160" cy="268" fill="#ffb45f" r="7"></circle>
+<!-- radar blip -->
+<g class="blink">
+<circle cx="255" cy="96" fill="none" r="12" stroke="#ffb45f" stroke-opacity=".4" stroke-width="2"></circle>
+<circle cx="255" cy="96" fill="#ffb45f" r="5.5"></circle>
+</g>
+</svg>
+<span class="chip chip-a" data-i18n="k16">고양이 도감 10종</span>
+<span class="chip chip-b" data-i18n="k17">1인 개발 · 웹 무료</span>
+</div>
+</div>
+</section>
+<ul aria-label="레이더캣 숫자로 보기" class="stats" data-i18n-aria="레이더캣 숫자로 보기">
+<li class="stat" data-i18n="k18"><b><i>3</i>종</b><span>웹에서 바로 하는 게임</span></li>
+<li class="stat" data-i18n="k19"><b><i>10</i>종</b><span>머지 퍼즐 고양이 도감</span></li>
+<li class="stat" data-i18n="k20"><b><i>4</i>종</b><span>무료 실전 AI 프롬프트</span></li>
+<li class="stat" data-i18n="k21"><b>1<i>인</i></b><span>기획부터 배포까지</span></li>
+</ul>
+<section class="section" id="games">
+<span class="kicker">GAMES</span>
+<h2 data-i18n="k22">설치 없이, 지금 바로 하는 게임</h2>
+<p class="sec-lead" data-i18n="k23">모두 웹으로 공개되어 있어 링크만 누르면 플레이할 수 있습니다. 모바일에서는 홈 화면에 추가해 앱처럼 쓸 수 있는 게임도 있습니다.</p>
+<div class="games">
+<article class="game">
+<div aria-hidden="true" class="thumb t-exam">
+<svg fill="none" viewbox="0 0 240 150">
+<rect fill="#f7f3e8" height="120" rx="8" transform="rotate(-4 108 76)" width="112" x="52" y="16"></rect>
+<rect fill="#b9b2a0" height="7" rx="3.5" transform="rotate(-4 108 76)" width="60" x="66" y="34"></rect>
+<rect fill="#d6cfbb" height="5" rx="2.5" transform="rotate(-4 108 76)" width="84" x="66" y="50"></rect>
+<rect fill="#d6cfbb" height="5" rx="2.5" transform="rotate(-4 108 76)" width="76" x="66" y="62"></rect>
+<rect fill="#d6cfbb" height="5" rx="2.5" transform="rotate(-4 108 76)" width="80" x="66" y="74"></rect>
+<rect fill="#d6cfbb" height="5" rx="2.5" transform="rotate(-4 108 76)" width="52" x="66" y="86"></rect>
+<circle cx="166" cy="98" fill="#0b101d" fill-opacity=".55" r="30"></circle>
+<circle cx="166" cy="98" r="27" stroke="#4deec0" stroke-width="4"></circle>
+<path d="M186 118 L204 136" stroke="#4deec0" stroke-linecap="round" stroke-width="8"></path>
+<path d="M156 99 l7 8 l14 -18" stroke="#4deec0" stroke-linecap="round" stroke-linejoin="round" stroke-width="4.5"></path>
+<circle cx="40" cy="34" fill="#ffb45f" r="4"></circle>
+<circle cx="206" cy="40" fill="#4deec0" fill-opacity=".7" r="3"></circle>
+</svg>
+</div>
+<div class="game-body">
+<div class="tags" data-i18n="k24"><span class="tag">수능 감독관 추리</span><span class="badge">Google Play 준비 중</span></div>
+<h3 data-i18n="k25">제7시험장: 신호를 찾아라</h3>
+<p data-i18n="k26">시험장 감독관이 되어 AI 기기 부정행위의 신호를 찾아내는 추리 게임. 1~3교시를 넘기며 26가지 사건과 도구 4종으로 진실을 가려냅니다.</p>
+<ul class="bullets">
+<li data-i18n="k27">3교시 · 26사건</li>
+<li data-i18n="k28">도구 4종</li>
+<li data-i18n="k29">PWA 설치 지원</li>
+</ul>
+<div class="game-actions">
+<a class="btn btn-primary btn-sm" data-i18n="k30" href="https://minsu920109-hub.github.io/exam-hall/" rel="noopener" target="_blank">바로 플레이</a>
+</div>
+</div>
+</article>
+<article class="game">
+<div aria-hidden="true" class="thumb t-merge">
+<svg fill="none" viewbox="0 0 240 150">
+<path d="M44 128 Q120 18 198 112" stroke="#4deec0" stroke-dasharray="6 7" stroke-opacity=".55" stroke-width="2.4"></path>
+<circle cx="52" cy="118" fill="#2b2450" r="17" stroke="#9d8ff0" stroke-width="3"></circle>
+<path d="M45 112 l-2 -8 l7 4 Z M59 112 l2 -8 l-7 4 Z" fill="#9d8ff0"></path>
+<circle cx="52" cy="119" fill="#9d8ff0" r="2"></circle><circle cx="55" cy="119" fill="#9d8ff0" r="2"></circle>
+<circle cx="150" cy="70" fill="#3a2f66" r="23" stroke="#4deec0" stroke-width="3"></circle>
+<path d="M140 58 l-3 -11 l10 5 Z M160 58 l3 -11 l-10 5 Z" fill="#4deec0"></path>
+<circle cx="143" cy="70" fill="#4deec0" r="3"></circle><circle cx="157" cy="70" fill="#4deec0" r="3"></circle>
+<path d="M196 116 l14 -34" stroke="#ffb45f" stroke-linecap="round" stroke-width="3"></path>
+<path d="M203 96 l10 6" stroke="#ffb45f" stroke-linecap="round" stroke-width="3"></path>
+<circle cx="198" cy="112" fill="#ffb45f" fill-opacity=".22" r="10" stroke="#ffb45f" stroke-width="2.4"></circle>
+<circle cx="92" cy="42" fill="#4deec0" fill-opacity=".75" r="3.5"></circle>
+<circle cx="212" cy="52" fill="#ffb45f" fill-opacity=".7" r="3"></circle>
+</svg>
+</div>
+<div class="game-body">
+<div class="tags" data-i18n="k31"><span class="tag">캐주얼 퍼즐</span><span class="badge">웹 공개</span></div>
+<h3 data-i18n="k32">고양이 머지 퍼즐 v2 <small>냥이 수박 머지 v2</small></h3>
+<p data-i18n="k33">같은 냥이를 합쳐 더 큰 냥이를 만드는 머지 퍼즐. 드래그로 각도를 조준해 떨어뜨리면 벽에 튕겨 다른 자리에 떨어집니다. 도감과 업적, 아이템까지 붙였습니다.</p>
+<ul class="bullets">
+<li data-i18n="k34">각도 조준</li>
+<li data-i18n="k35">벽 도탄</li>
+<li data-i18n="k36">도감 10종 · 업적 9종</li>
+<li data-i18n="k37">아이템 3종</li>
+</ul>
+<div class="game-actions">
+<a class="btn btn-primary btn-sm" data-i18n="k38" href="nyang-merge/" rel="noopener" target="_blank">바로 플레이</a>
+</div>
+</div>
+</article>
+<article class="game">
+<div aria-hidden="true" class="thumb t-nyang">
+<svg fill="none" viewbox="0 0 240 150">
+<path d="M78 42 h84 l-8 88 a10 10 0 0 1 -10 9 h-48 a10 10 0 0 1 -10 -9 Z" fill="#4deec0" fill-opacity=".10" stroke="#4deec0" stroke-opacity=".7" stroke-width="3"></path>
+<path d="M58 42 h124" stroke="#4deec0" stroke-linecap="round" stroke-opacity=".85" stroke-width="4"></path>
+<ellipse cx="120" cy="96" fill="#171331" rx="22" ry="19" stroke="#4deec0" stroke-width="2.6"></ellipse>
+<path d="M106 84 l-4 -14 l12 6 Z M134 84 l4 -14 l-12 6 Z" fill="#171331" stroke="#4deec0" stroke-linejoin="round" stroke-width="2.6"></path>
+<circle cx="113" cy="94" fill="#4deec0" r="3"></circle><circle cx="127" cy="94" fill="#4deec0" r="3"></circle>
+<path d="M117 104 q3 3 6 0" stroke="#ffb45f" stroke-linecap="round" stroke-width="2.4"></path>
+<circle cx="78" cy="72" fill="#4deec0" fill-opacity=".7" r="3"></circle>
+<circle cx="164" cy="60" fill="#ffb45f" fill-opacity=".8" r="4"></circle>
+<circle cx="176" cy="108" fill="#4deec0" fill-opacity=".6" r="2.6"></circle>
+<path d="M42 96 l6 -6 M210 84 l-6 -6" stroke="#ffb45f" stroke-linecap="round" stroke-opacity=".8" stroke-width="2.6"></path>
+</svg>
+</div>
+<div class="game-body">
+<div class="tags" data-i18n="k39"><span class="tag">고양이 수집형</span><span class="badge badge-dev">개발 중</span></div>
+<h3 data-i18n="k40">냥글라스 <small>NyangGlass</small></h3>
+<p data-i18n="k41">고양이를 모으고 키우는 수집형 인디 게임. 1인 개발 중이며, 매일 밤 자동 테스트로 다듬고 있습니다. 새 소식은 유튜브와 인스타그램에 먼저 올립니다.</p>
+<ul class="bullets">
+<li data-i18n="k42">수집 · 도감</li>
+<li data-i18n="k43">자동 테스트로 개선 중</li>
+</ul>
+<div class="game-actions">
+<a class="btn btn-ghost btn-sm" data-i18n="k44" href="https://www.youtube.com/@radarcatgg" rel="noopener" target="_blank">개발 소식 보기</a>
+</div>
+</div>
+</article>
+<article class="game">
+<div aria-hidden="true" class="thumb t-contract">
+<svg fill="none" viewbox="0 0 240 150">
+<rect fill="#f8f4e9" height="118" rx="8" transform="rotate(3 108 77)" width="104" x="56" y="18"></rect>
+<rect fill="#b9b2a0" height="6" rx="3" transform="rotate(3 108 77)" width="66" x="74" y="40"></rect>
+<rect fill="#d8d0ba" height="4.5" rx="2.2" transform="rotate(3 108 77)" width="52" x="74" y="58"></rect>
+<rect fill="#d8d0ba" height="4.5" rx="2.2" transform="rotate(3 108 77)" width="60" x="74" y="72"></rect>
+<rect fill="#d8d0ba" height="4.5" rx="2.2" transform="rotate(3 108 77)" width="44" x="74" y="86"></rect>
+<path d="M74 108 q22 -7 44 0" stroke="#e2493a" stroke-linecap="round" stroke-width="3.4" transform="rotate(3 108 77)"></path>
+<circle cx="176" cy="98" fill="#0f0d17" fill-opacity=".5" r="26"></circle>
+<circle cx="176" cy="98" r="23" stroke="#ffb45f" stroke-width="3.6"></circle>
+<path d="M176 84 v18" stroke="#ffb45f" stroke-linecap="round" stroke-width="3.6"></path>
+<path d="M176 110 v4" stroke="#ffb45f" stroke-linecap="round" stroke-width="3.6"></path>
+<circle cx="42" cy="44" fill="#e2493a" fill-opacity=".8" r="3.4"></circle>
+<circle cx="206" cy="42" fill="#4deec0" fill-opacity=".7" r="3"></circle>
+</svg>
+</div>
+<div class="game-body">
+<div class="tags" data-i18n="k45"><span class="tag">3분 추리</span><span class="badge">웹 공개</span></div>
+<h3 data-i18n="k46">계약서 판독실: 작은 글씨의 함정</h3>
+<p data-i18n="k47">가상의 계약서 조항과 구두 약속을 대조해 함정을 찾아내는 짧은 추리 웹게임. 100% 창작 게임이며 실제 법률 자문이 아닙니다.</p>
+<ul class="bullets">
+<li data-i18n="k48">3분 플레이</li>
+<li data-i18n="k49">조항 대조 추리</li>
+</ul>
+<div class="game-actions">
+<a class="btn btn-primary btn-sm" data-i18n="k50" href="contract-check/" rel="noopener" target="_blank">바로 플레이</a>
+</div>
+</div>
+</article>
+</div>
+</section>
+<section class="section" id="prompts">
+<div class="kofi">
+<div>
+<span class="kicker" data-i18n="k51">KO-FI · 무료 배포</span>
+<h2 data-i18n="k52">현생 고민을 줄이는<br/>실전 AI 프롬프트 4종</h2>
+<p class="sec-lead" data-i18n="k53">AI가 없는 마감일을 지어내거나, 내가 하지 않은 약속을 만들지 않도록 설계한 프롬프트입니다. 계정 연결도 설치도 필요 없는 텍스트 파일이고, Ko-fi에서 무료로 배포하고 있습니다.</p>
+<a class="btn btn-ghost" data-i18n="k54" href="https://ko-fi.com/radarcat" rel="noopener" target="_blank"><span aria-hidden="true" class="ico">☕</span>Ko-fi에서 무료로 받기</a>
+<p class="kofi-note" data-i18n="k55">원하는 금액으로 후원도 받습니다. 후원금은 다음 게임 개발과 서버 비용에 씁니다.</p>
+</div>
+<div class="prompts">
+<div class="prompt" data-i18n="k56">
+<span class="n">#01 메모 정리</span>
+<b>메모에 없는 마감·담당자를 지어내지 않는 정리</b>
+<span>확인된 내용 / 할 일 / 완료된 일 / 확인 필요 / 제안 순서로 초안을 나눠 줍니다.</span>
+</div>
+<div class="prompt" data-i18n="k57">
+<span class="n">#02 장문 카톡·메일</span>
+<b>10초 만에 핵심·할 일만 뽑기</b>
+<span>한 문장 요약, 근거가 붙은 핵심 최대 5개, 결정된 것과 확인할 것을 구분합니다.</span>
+</div>
+<div class="prompt" data-i18n="k58">
+<span class="n">#03 거절·부탁·사과 답장</span>
+<b>내 말투를 지키는 2~4문장 답장</b>
+<span>상대 요구를 마음대로 수락하지 않고, 없는 사과 이유도 만들지 않습니다.</span>
+</div>
+<div class="prompt" data-i18n="k59">
+<span class="n">#04 적금·구독·계약</span>
+<b>조건 빠짐없이 만드는 비교표</b>
+<span>위약금·할인 종료일·최소 유지기간까지 후보별로 나란히 정리합니다.</span>
+</div>
+</div>
+</div>
+</section>
+<section class="section" id="channels">
+<span class="kicker">CHANNELS</span>
+<h2 data-i18n="k60">채널 &amp; 연락처</h2>
+<p class="sec-lead" data-i18n="k61">새 게임 소식과 개발 기록은 아래 채널에 올립니다. 협업·문의는 이메일로 주세요.</p>
+<div class="chans">
+<a class="chan" href="https://www.youtube.com/@radarcatgg" rel="noopener" target="_blank">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M21.6 7.2a2.8 2.8 0 0 0-2-2C17.9 4.8 12 4.8 12 4.8s-5.9 0-7.6.4a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2 12a29 29 0 0 0 .4 4.8 2.8 2.8 0 0 0 2 2c1.7.4 7.6.4 7.6.4s5.9 0 7.6-.4a2.8 2.8 0 0 0 2-2A29 29 0 0 0 22 12a29 29 0 0 0-.4-4.8Z" fill="none" stroke="currentColor" stroke-width="1.7"></path><path d="M10 15.2V8.8l5.2 3.2Z" fill="currentColor"></path></svg>
+<span class="chan-txt"><b>YouTube</b><span>@radarcatgg</span></span>
+</a>
+<a class="chan" href="https://www.instagram.com/radarcat.official/" rel="noopener" target="_blank">
+<svg aria-hidden="true" viewbox="0 0 24 24"><rect fill="none" height="18" rx="5.4" stroke="currentColor" stroke-width="1.8" width="18" x="3" y="3"></rect><circle cx="12" cy="12" fill="none" r="4.2" stroke="currentColor" stroke-width="1.8"></circle><circle cx="17.2" cy="6.8" fill="currentColor" r="1.3"></circle></svg>
+<span class="chan-txt"><b>Instagram</b><span>@radarcat.official</span></span>
+</a>
+<a class="chan" href="https://github.com/minsu920109-hub" rel="noopener" target="_blank">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.3-3.4-1.3-.4-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 12 2Z" fill="currentColor"></path></svg>
+<span class="chan-txt"><b>GitHub</b><span>minsu920109-hub</span></span>
+</a>
+<a class="chan" href="https://radarcat.tistory.com/" rel="noopener" target="_blank">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18M12 4v16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.4"></path><path d="M12 4h6.4a3.6 3.6 0 0 1 0 7.2H12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path></svg>
+<span class="chan-txt"><b>Tistory</b><span>radarcat.tistory.com</span></span>
+</a>
+<a class="chan chan-mail" href="mailto:minsu920109@gmail.com">
+<svg aria-hidden="true" viewbox="0 0 24 24"><rect fill="none" height="14.4" rx="3" stroke="currentColor" stroke-width="1.8" width="18.8" x="2.6" y="4.8"></rect><path d="M3.6 6.6 12 13l8.4-6.4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path></svg>
+<span class="chan-txt"><b>Email</b><span>minsu920109@<wbr>gmail.com</wbr></span></span>
+</a>
+</div>
+</section>
+</div>
+</main>
+<footer class="site-foot">
+<div class="wrap">
+<ul class="f-links">
+<li><a data-i18n="k62" href="index.html">홈</a></li>
+<li><a data-i18n="k63" href="comment-bot.html">RadarCat 댓글 봇 (Comment Bot)</a></li>
+<li><a data-i18n="k64" href="privacy.html">개인정보처리방침</a></li>
+<li><a data-i18n="k65" href="terms.html">서비스 약관</a></li>
+<li><a href="https://ko-fi.com/radarcat" rel="noopener" target="_blank">Ko-fi</a></li>
+</ul>
+<p class="f-note">RadarCat is a one-person indie game studio by Minsu Kim (김민수). The RadarCat Comment Bot is a personal Windows desktop tool that notifies the creator of the RadarCat YouTube channel (@radarcatgg) about new comments and posts replies the user approves; it runs on the user's own PC with the user's own Google OAuth consent and uses YouTube API Services. See the <a href="comment-bot.html">app page</a> for details, along with the <a href="privacy.html">Privacy Policy</a> and <a href="terms.html">Terms of Service</a>.</p>
+<p class="f-copy" data-i18n="k66">© 2026 RadarCat (김민수)</p>
+</div>
+</footer>
+<script>
+(function(){
+var D={"T": {"en": {"k01": "Skip to main content", "k02": "<b>RadarCat</b><span>레이더캣</span>", "k03": "Games", "k04": "Free prompts", "k05": "Channels", "k06": "Comment bot", "k07": "🎮 The Seventh Classroom", "k08": "<span aria-hidden=\"true\" class=\"dot\"></span>RADARCAT · SOLO INDIE GAME STUDIO", "k09": "Small cat games,<br>made alone,<br><em>released right away.</em>", "k10": "RadarCat is the one-person indie game studio of <b>Minsu Kim</b>. I make everything myself, from design and code to art and sound, and release the games so you can play them <b>on the web, no install</b>: the CSAT-proctor mystery game \"The Seventh Classroom\", a cat merge puzzle, and the collection game \"Nyangglass\". The practical prompts I use every day as an AI creator are free on Ko-fi too.", "k11": "<span aria-hidden=\"true\" class=\"ico\">🎮</span>Play The Seventh Classroom", "k12": "<span aria-hidden=\"true\" class=\"ico\">☕</span>Support on Ko-fi", "k13": "Free to play on the web", "k14": "Mobile and PC", "k15": "Google Play release in preparation", "k16": "10 cats in the album", "k17": "Solo dev · free on the web", "k18": "<b><i>3</i></b><span>games playable on the web</span>", "k19": "<b><i>10</i></b><span>cats in the merge puzzle album</span>", "k20": "<b><i>4</i></b><span>free practical AI prompts</span>", "k21": "<b>1<i> person</i></b><span>from planning to release</span>", "k22": "Games you can play right now, no install", "k23": "All of them are on the web, so one tap on the link starts the game. Some can be added to your phone's home screen and used like an app.", "k24": "<span class=\"tag\">CSAT proctor mystery</span><span class=\"badge\">Google Play coming</span>", "k25": "The Seventh Classroom: Find the Signal", "k26": "Play an exam proctor and find the signals of cheating with AI devices. Go through periods 1 to 3 and uncover the truth with 26 cases and 4 tools.", "k27": "3 periods · 26 cases", "k28": "4 tools", "k29": "PWA install supported", "k30": "Play now", "k31": "<span class=\"tag\">Casual puzzle</span><span class=\"badge\">Live on the web</span>", "k32": "Cat Merge Puzzle v2 <small>Nyang Watermelon Merge v2</small>", "k33": "A merge puzzle where you combine identical cats into bigger ones. Aim the angle by dragging, drop the cat, and it bounces off the walls before landing somewhere else. It also has an album, achievements and items.", "k34": "Angle aiming", "k35": "Wall bounces", "k36": "10 albums · 9 achievements", "k37": "3 items", "k38": "Play now", "k39": "<span class=\"tag\">Cat collection</span><span class=\"badge badge-dev\">In development</span>", "k40": "Nyangglass <small>NyangGlass</small>", "k41": "An indie game about collecting and raising cats. It is a solo project, polished by automated tests every night. News goes to YouTube and Instagram first.", "k42": "Collect · Album", "k43": "Improving with automated tests", "k44": "See dev news", "k45": "<span class=\"tag\">3-minute mystery</span><span class=\"badge\">Live on the web</span>", "k46": "Contract Check Room: The Trap in the Fine Print", "k47": "A short mystery web game where you compare clauses of a fictional contract with verbal promises to find the trap. It is a 100% original game and not legal advice.", "k48": "3-minute play", "k49": "Clause cross-check mystery", "k50": "Play now", "k51": "KO-FI · FREE DOWNLOAD", "k52": "4 practical AI prompts<br>to cut daily worries", "k53": "These prompts are designed so the AI does not invent deadlines that do not exist or promises you never made. They are plain text files that need no account link and no install, and they are free on Ko-fi.", "k54": "<span aria-hidden=\"true\" class=\"ico\">☕</span>Get it free on Ko-fi", "k55": "You can also support with an amount of your choice. Support goes to the next game and server costs.", "k56": "<span class=\"n\">#01 Note cleanup</span> <b>Tidy notes without inventing deadlines or owners</b> <span>Splits the draft into confirmed items / to-dos / done / needs checking / suggested order.</span>", "k57": "<span class=\"n\">#02 Long chat or email</span> <b>Pull out the key points and to-dos in 10 seconds</b> <span>A one-sentence summary, up to 5 key points with evidence, and what is decided versus what to confirm.</span>", "k58": "<span class=\"n\">#03 Decline, ask, apologize</span> <b>2 to 4 sentence replies in your own tone</b> <span>It does not accept the other person's demands on its own and does not make up reasons to apologize.</span>", "k59": "<span class=\"n\">#04 Savings, subscriptions, contracts</span> <b>A comparison table with no missing terms</b> <span>Penalties, discount end dates and minimum terms, side by side for each option.</span>", "k60": "Channels & contact", "k61": "New game news and dev notes go to the channels below. For collaboration or questions, email me.", "k62": "Home", "k63": "RadarCat Comment Bot", "k64": "Privacy Policy", "k65": "Terms of Service", "k66": "© 2026 RadarCat (Minsu Kim)"}, "ja": {"k01": "本文へスキップ", "k02": "<b>RadarCat</b><span>レーダーキャット</span>", "k03": "ゲーム", "k04": "無料プロンプト", "k05": "チャンネル", "k06": "コメントボット", "k07": "🎮 第7試験場", "k08": "<span aria-hidden=\"true\" class=\"dot\"></span>RADARCAT · 1人インディーゲームスタジオ", "k09": "小さな猫のゲームを<br>ひとりで作って、<br><em>すぐ公開します。</em>", "k10": "RadarCat(レーダーキャット)は<b>キム・ミンス</b>の1人インディーゲームスタジオです。企画からコード、絵、音まで自分で作り、大学入試の試験監督ミステリー『第7試験場』、猫のマージパズル、コレクションゲーム『ニャングラス』を<b>インストール不要でWebから</b>遊べるように公開しています。AIクリエイターとして毎日使っている実用プロンプトもKo-fiで無料公開中です。", "k11": "<span aria-hidden=\"true\" class=\"ico\">🎮</span>第7試験場をすぐ遊ぶ", "k12": "<span aria-hidden=\"true\" class=\"ico\">☕</span>Ko-fiで応援する", "k13": "Webで無料プレイ", "k14": "モバイル・PC対応", "k15": "Google Play公開準備中", "k16": "猫図鑑10種", "k17": "1人開発 · Web無料", "k18": "<b><i>3</i>本</b><span>Webですぐ遊べるゲーム</span>", "k19": "<b><i>10</i>種</b><span>マージパズルの猫図鑑</span>", "k20": "<b><i>4</i>種</b><span>無料の実用AIプロンプト</span>", "k21": "<b>1<i>人</i></b><span>企画から公開まで</span>", "k22": "インストール不要、いますぐ遊べるゲーム", "k23": "すべてWebで公開しているので、リンクを押すだけで遊べます。モバイルではホーム画面に追加してアプリのように使えるゲームもあります。", "k24": "<span class=\"tag\">試験監督ミステリー</span><span class=\"badge\">Google Play準備中</span>", "k25": "第7試験場:信号を見つけろ", "k26": "試験監督になって、AI機器による不正の信号を見つけ出すミステリーゲーム。1〜3時限を進めながら、26の事件と4つの道具で真実を見極めます。", "k27": "3時限 · 26事件", "k28": "道具4種", "k29": "PWAインストール対応", "k30": "いますぐ遊ぶ", "k31": "<span class=\"tag\">カジュアルパズル</span><span class=\"badge\">Web公開</span>", "k32": "猫マージパズル v2 <small>ニャンスイカマージ v2</small>", "k33": "同じ猫を合わせて、より大きな猫を作るマージパズル。ドラッグで角度を狙って落とすと、壁に跳ね返って別の場所に落ちます。図鑑、実績、アイテムも付いています。", "k34": "角度ねらい", "k35": "壁バウンド", "k36": "図鑑10種 · 実績9種", "k37": "アイテム3種", "k38": "いますぐ遊ぶ", "k39": "<span class=\"tag\">猫コレクション</span><span class=\"badge badge-dev\">開発中</span>", "k40": "ニャングラス <small>NyangGlass</small>", "k41": "猫を集めて育てるコレクション型インディーゲーム。1人で開発中で、毎晩の自動テストで磨いています。最新情報はYouTubeとInstagramに先に投稿します。", "k42": "収集 · 図鑑", "k43": "自動テストで改善中", "k44": "開発ニュースを見る", "k45": "<span class=\"tag\">3分ミステリー</span><span class=\"badge\">Web公開</span>", "k46": "契約書判読室:小さな文字の罠", "k47": "架空の契約書の条項と口約束を照らし合わせて罠を見つける、短い推理Webゲーム。100%創作のゲームで、実際の法律相談ではありません。", "k48": "3分プレイ", "k49": "条項照合ミステリー", "k50": "いますぐ遊ぶ", "k51": "KO-FI · 無料配布", "k52": "日々の悩みを減らす<br>実用AIプロンプト4種", "k53": "AIが存在しない締め切りを作ったり、自分がしていない約束を作ったりしないように設計したプロンプトです。アカウント連携もインストールも不要なテキストファイルで、Ko-fiで無料配布しています。", "k54": "<span aria-hidden=\"true\" class=\"ico\">☕</span>Ko-fiで無料で受け取る", "k55": "お好きな金額での支援も受け付けています。支援金は次のゲーム開発とサーバー費用に使います。", "k56": "<span class=\"n\">#01 メモ整理</span> <b>メモにない締め切りや担当者を作らない整理</b> <span>確認済みの内容 / やること / 完了したこと / 要確認 / 提案する順番に下書きを分けます。</span>", "k57": "<span class=\"n\">#02 長文のチャット・メール</span> <b>10秒で要点とやることだけを抜き出す</b> <span>1文の要約、根拠付きの要点を最大5つ、決まったことと確認することを区別します。</span>", "k58": "<span class=\"n\">#03 断り・お願い・お詫びの返信</span> <b>自分の口調を保った2〜4文の返信</b> <span>相手の要求を勝手に受け入れず、ないお詫びの理由も作りません。</span>", "k59": "<span class=\"n\">#04 積立・サブスク・契約</span> <b>条件の抜けがない比較表</b> <span>違約金・割引終了日・最低維持期間まで、候補ごとに並べて整理します。</span>", "k60": "チャンネル & 連絡先", "k61": "新作ゲームの情報や開発記録は下のチャンネルに投稿します。協業・お問い合わせはメールでお願いします。", "k62": "ホーム", "k63": "RadarCat コメントボット (Comment Bot)", "k64": "プライバシーポリシー", "k65": "利用規約", "k66": "© 2026 RadarCat (キム・ミンス)"}, "vi": {"k01": "Chuyển đến nội dung chính", "k02": "<b>RadarCat</b><span>레이더캣</span>", "k03": "Trò chơi", "k04": "Prompt miễn phí", "k05": "Kênh", "k06": "Bot bình luận", "k07": "🎮 Phòng thi số 7", "k08": "<span aria-hidden=\"true\" class=\"dot\"></span>RADARCAT · STUDIO GAME INDIE MỘT NGƯỜI", "k09": "Làm game mèo nhỏ<br>một mình,<br><em>và phát hành ngay.</em>", "k10": "RadarCat là studio game indie một người của <b>Kim Minsu</b>. Mình tự làm tất cả, từ ý tưởng, mã nguồn, hình ảnh đến âm thanh, và phát hành để bạn chơi <b>ngay trên web, không cần cài đặt</b>: game trinh thám giám thị kỳ thi đại học \"Phòng thi số 7\", game xếp hình ghép mèo và game sưu tập \"Nyangglass\". Những prompt thực dụng mình dùng mỗi ngày với vai trò nhà sáng tạo AI cũng được đăng miễn phí trên Ko-fi.", "k11": "<span aria-hidden=\"true\" class=\"ico\">🎮</span>Chơi Phòng thi số 7 ngay", "k12": "<span aria-hidden=\"true\" class=\"ico\">☕</span>Ủng hộ trên Ko-fi", "k13": "Chơi miễn phí trên web", "k14": "Hỗ trợ di động và PC", "k15": "Đang chuẩn bị ra mắt trên Google Play", "k16": "10 chú mèo trong sổ sưu tập", "k17": "Làm một mình · miễn phí trên web", "k18": "<b><i>3</i></b><span>game chơi ngay trên web</span>", "k19": "<b><i>10</i></b><span>mèo trong sổ sưu tập game ghép</span>", "k20": "<b><i>4</i></b><span>prompt AI thực dụng miễn phí</span>", "k21": "<b>1<i> người</i></b><span>từ lên ý tưởng đến phát hành</span>", "k22": "Game chơi ngay, không cần cài đặt", "k23": "Tất cả đều có trên web nên chỉ cần bấm liên kết là chơi được. Một số game còn có thể thêm vào màn hình chính trên điện thoại để dùng như ứng dụng.", "k24": "<span class=\"tag\">Trinh thám giám thị thi</span><span class=\"badge\">Sắp lên Google Play</span>", "k25": "Phòng thi số 7: Tìm ra tín hiệu", "k26": "Vào vai giám thị phòng thi và tìm ra tín hiệu gian lận bằng thiết bị AI. Qua các tiết 1 đến 3, phân định sự thật với 26 vụ việc và 4 dụng cụ.", "k27": "3 tiết · 26 vụ việc", "k28": "4 dụng cụ", "k29": "Hỗ trợ cài đặt PWA", "k30": "Chơi ngay", "k31": "<span class=\"tag\">Giải đố thư giãn</span><span class=\"badge\">Đã có trên web</span>", "k32": "Game ghép mèo v2 <small>Mèo dưa hấu ghép v2</small>", "k33": "Game xếp hình ghép các chú mèo giống nhau thành chú mèo lớn hơn. Kéo để ngắm góc rồi thả, mèo sẽ nảy vào tường và rơi xuống chỗ khác. Có cả sổ sưu tập, thành tựu và vật phẩm.", "k34": "Ngắm góc", "k35": "Nảy tường", "k36": "10 mục sổ · 9 thành tựu", "k37": "3 vật phẩm", "k38": "Chơi ngay", "k39": "<span class=\"tag\">Sưu tập mèo</span><span class=\"badge badge-dev\">Đang phát triển</span>", "k40": "Nyangglass <small>NyangGlass</small>", "k41": "Game indie sưu tập và nuôi mèo. Đang được làm bởi một người và được trau chuốt bằng kiểm thử tự động mỗi đêm. Tin mới sẽ đăng trên YouTube và Instagram trước.", "k42": "Sưu tập · Sổ mèo", "k43": "Đang cải thiện bằng kiểm thử tự động", "k44": "Xem tin phát triển", "k45": "<span class=\"tag\">Trinh thám 3 phút</span><span class=\"badge\">Đã có trên web</span>", "k46": "Phòng đọc hợp đồng: Cái bẫy trong chữ nhỏ", "k47": "Web game trinh thám ngắn: đối chiếu các điều khoản của một hợp đồng hư cấu với lời hứa miệng để tìm ra cái bẫy. Đây là game sáng tác 100% và không phải tư vấn pháp lý thực tế.", "k48": "Chơi 3 phút", "k49": "Đối chiếu điều khoản", "k50": "Chơi ngay", "k51": "KO-FI · PHÁT HÀNH MIỄN PHÍ", "k52": "4 prompt AI thực dụng<br>giúp bớt lo toan hằng ngày", "k53": "Đây là các prompt được thiết kế để AI không bịa ra thời hạn không có hay lời hứa bạn chưa từng hứa. Chỉ là tệp văn bản, không cần liên kết tài khoản hay cài đặt, và được phát miễn phí trên Ko-fi.", "k54": "<span aria-hidden=\"true\" class=\"ico\">☕</span>Nhận miễn phí trên Ko-fi", "k55": "Bạn cũng có thể ủng hộ với số tiền tùy ý. Tiền ủng hộ dùng cho việc làm game tiếp theo và chi phí máy chủ.", "k56": "<span class=\"n\">#01 Sắp xếp ghi chú</span> <b>Sắp xếp mà không bịa ra hạn chót hay người phụ trách</b> <span>Chia bản nháp thành: nội dung đã xác nhận / việc cần làm / việc đã xong / cần kiểm tra / thứ tự đề xuất.</span>", "k57": "<span class=\"n\">#02 Tin nhắn, email dài</span> <b>Rút ra ý chính và việc cần làm trong 10 giây</b> <span>Tóm tắt một câu, tối đa 5 ý chính kèm căn cứ, phân biệt điều đã quyết và điều cần xác nhận.</span>", "k58": "<span class=\"n\">#03 Từ chối, nhờ vả, xin lỗi</span> <b>Câu trả lời 2 đến 4 câu giữ đúng giọng của bạn</b> <span>Không tự ý chấp nhận yêu cầu của đối phương và không bịa lý do xin lỗi.</span>", "k59": "<span class=\"n\">#04 Tiết kiệm, đăng ký, hợp đồng</span> <b>Bảng so sánh không sót điều kiện</b> <span>Phí phạt, ngày kết thúc ưu đãi, thời hạn tối thiểu được xếp cạnh nhau cho từng lựa chọn.</span>", "k60": "Kênh & liên hệ", "k61": "Tin game mới và nhật ký phát triển được đăng trên các kênh bên dưới. Hợp tác hoặc thắc mắc, vui lòng gửi email.", "k62": "Trang chủ", "k63": "RadarCat Comment Bot (Bot bình luận)", "k64": "Chính sách quyền riêng tư", "k65": "Điều khoản dịch vụ", "k66": "© 2026 RadarCat (Kim Minsu)"}, "zh": {"k01": "跳到正文", "k02": "<b>RadarCat</b><span>레이더캣</span>", "k03": "游戏", "k04": "免费提示词", "k05": "频道", "k06": "评论机器人", "k07": "🎮 第七考场", "k08": "<span aria-hidden=\"true\" class=\"dot\"></span>RADARCAT · 个人独立游戏工作室", "k09": "一个人做小猫游戏,<br>做好就<br><em>马上发布。</em>", "k10": "RadarCat(레이더캣)是<b>金民秀</b>的个人独立游戏工作室。从策划、代码到美术和音效都由我自己完成,并发布成<b>无需安装、直接在网页上</b>就能玩的游戏:高考监考推理游戏《第七考场》、猫咪合成益智游戏,以及收集类游戏《Nyangglass》。我作为 AI 创作者每天使用的实用提示词,也在 Ko-fi 免费提供。", "k11": "<span aria-hidden=\"true\" class=\"ico\">🎮</span>立即玩《第七考场》", "k12": "<span aria-hidden=\"true\" class=\"ico\">☕</span>在 Ko-fi 支持我", "k13": "网页免费游玩", "k14": "支持手机和电脑", "k15": "Google Play 上架准备中", "k16": "10 种猫咪图鉴", "k17": "个人开发 · 网页免费", "k18": "<b><i>3</i>款</b><span>网页直接玩的游戏</span>", "k19": "<b><i>10</i>种</b><span>合成益智猫咪图鉴</span>", "k20": "<b><i>4</i>个</b><span>免费实用 AI 提示词</span>", "k21": "<b>1<i>人</i></b><span>从策划到发布</span>", "k22": "无需安装,现在就能玩的游戏", "k23": "全部都在网页上公开,点开链接就能玩。部分游戏在手机上还可以添加到主屏幕,像应用一样使用。", "k24": "<span class=\"tag\">监考推理</span><span class=\"badge\">Google Play 准备中</span>", "k25": "第七考场:找出信号", "k26": "扮演考场监考老师,找出利用 AI 设备作弊的信号。度过第 1 到第 3 节考试,用 26 个事件和 4 种工具查明真相。", "k27": "3 节考试 · 26 个事件", "k28": "4 种工具", "k29": "支持 PWA 安装", "k30": "立即游玩", "k31": "<span class=\"tag\">休闲益智</span><span class=\"badge\">网页已上线</span>", "k32": "猫咪合成益智 v2 <small>喵喵西瓜合成 v2</small>", "k33": "把相同的猫咪合成更大的猫咪的合成益智游戏。拖动瞄准角度后放下,猫咪会在墙上弹开,落到别的位置。还有图鉴、成就和道具。", "k34": "角度瞄准", "k35": "墙面反弹", "k36": "图鉴 10 种 · 成就 9 个", "k37": "道具 3 种", "k38": "立即游玩", "k39": "<span class=\"tag\">猫咪收集</span><span class=\"badge badge-dev\">开发中</span>", "k40": "Nyangglass <small>NyangGlass</small>", "k41": "收集并养育猫咪的独立收集类游戏。目前由一个人开发,每晚用自动测试打磨。新消息会先发布在 YouTube 和 Instagram。", "k42": "收集 · 图鉴", "k43": "正通过自动测试改进", "k44": "查看开发动态", "k45": "<span class=\"tag\">3 分钟推理</span><span class=\"badge\">网页已上线</span>", "k46": "合同判读室:小字里的陷阱", "k47": "把虚构合同的条款和口头承诺对照,找出陷阱的短篇推理网页游戏。游戏内容 100% 原创,不构成实际法律咨询。", "k48": "3 分钟游玩", "k49": "条款对照推理", "k50": "立即游玩", "k51": "KO-FI · 免费发放", "k52": "减少日常烦恼的<br>4 个实用 AI 提示词", "k53": "这些提示词的设计目的是让 AI 不会编造不存在的截止日期,也不会编造你没有做过的承诺。它们是无需绑定账号、无需安装的文本文件,在 Ko-fi 免费发放。", "k54": "<span aria-hidden=\"true\" class=\"ico\">☕</span>在 Ko-fi 免费获取", "k55": "也可以按自己想要的金额支持。支持金用于下一款游戏的开发和服务器费用。", "k56": "<span class=\"n\">#01 整理备忘</span> <b>不编造备忘里没有的截止日期和负责人</b> <span>把草稿分成:已确认内容 / 待办 / 已完成 / 需确认 / 建议顺序。</span>", "k57": "<span class=\"n\">#02 长消息、长邮件</span> <b>10 秒提取要点和待办</b> <span>一句话摘要、最多 5 条附依据的要点,区分已决定的事和需要确认的事。</span>", "k58": "<span class=\"n\">#03 拒绝、请求、道歉回复</span> <b>保持你说话风格的 2 到 4 句回复</b> <span>不会擅自接受对方的要求,也不会编造不存在的道歉理由。</span>", "k59": "<span class=\"n\">#04 储蓄、订阅、合同</span> <b>不遗漏条件的对比表</b> <span>违约金、优惠截止日期、最短持有期限,按候选项并排整理。</span>", "k60": "频道与联系方式", "k61": "新游戏消息和开发记录会发布在下面的频道。合作或咨询请发邮件。", "k62": "首页", "k63": "RadarCat 评论机器人 (Comment Bot)", "k64": "隐私政策", "k65": "服务条款", "k66": "© 2026 RadarCat (金民秀)"}, "es": {"k01": "Saltar al contenido principal", "k02": "<b>RadarCat</b><span>레이더캣</span>", "k03": "Juegos", "k04": "Prompts gratis", "k05": "Canales", "k06": "Bot de comentarios", "k07": "🎮 Aula de examen n.º 7", "k08": "<span aria-hidden=\"true\" class=\"dot\"></span>RADARCAT · ESTUDIO INDIE DE UNA SOLA PERSONA", "k09": "Pequeños juegos de gatos,<br>hechos en solitario,<br><em>publicados enseguida.</em>", "k10": "RadarCat es el estudio indie de una sola persona de <b>Minsu Kim</b>. Lo hago todo yo, desde el diseño y el código hasta el arte y el sonido, y lo publico para que juegues <b>en la web, sin instalar nada</b>: el juego de misterio de vigilante de examen \"Aula de examen n.º 7\", un puzle de fusionar gatos y el juego de colección \"Nyangglass\". Los prompts prácticos que uso cada día como creador con IA también están gratis en Ko-fi.", "k11": "<span aria-hidden=\"true\" class=\"ico\">🎮</span>Jugar al Aula de examen n.º 7", "k12": "<span aria-hidden=\"true\" class=\"ico\">☕</span>Apoyar en Ko-fi", "k13": "Gratis en la web", "k14": "Móvil y PC", "k15": "Google Play: en preparación", "k16": "Álbum de 10 gatos", "k17": "Desarrollo en solitario · gratis en la web", "k18": "<b><i>3</i></b><span>juegos para jugar en la web</span>", "k19": "<b><i>10</i></b><span>gatos en el álbum del puzle</span>", "k20": "<b><i>4</i></b><span>prompts de IA prácticos y gratis</span>", "k21": "<b>1<i> persona</i></b><span>de la idea a la publicación</span>", "k22": "Juegos para jugar ahora mismo, sin instalar", "k23": "Todos están en la web, así que basta con tocar el enlace para jugar. En el móvil, algunos se pueden añadir a la pantalla de inicio y usar como una app.", "k24": "<span class=\"tag\">Misterio de examen</span><span class=\"badge\">Google Play en preparación</span>", "k25": "Aula de examen n.º 7: encuentra la señal", "k26": "Hazte vigilante de examen y encuentra las señales de trampa con dispositivos de IA. Pasa por las horas 1 a 3 y descubre la verdad con 26 casos y 4 herramientas.", "k27": "3 horas · 26 casos", "k28": "4 herramientas", "k29": "Instalación como PWA", "k30": "Jugar ahora", "k31": "<span class=\"tag\">Puzle casual</span><span class=\"badge\">Disponible en la web</span>", "k32": "Puzle de fusionar gatos v2 <small>Gatos y sandías v2</small>", "k33": "Un puzle de fusionar gatos iguales para crear gatos más grandes. Apunta el ángulo arrastrando y suelta: el gato rebota en las paredes y cae en otro sitio. Incluye álbum, logros y objetos.", "k34": "Apuntar el ángulo", "k35": "Rebotes en la pared", "k36": "Álbum de 10 · 9 logros", "k37": "3 objetos", "k38": "Jugar ahora", "k39": "<span class=\"tag\">Colección de gatos</span><span class=\"badge badge-dev\">En desarrollo</span>", "k40": "Nyangglass <small>NyangGlass</small>", "k41": "Un juego indie para coleccionar y criar gatos. Lo desarrollo en solitario y lo pulo con pruebas automáticas cada noche. Las novedades salen primero en YouTube e Instagram.", "k42": "Colección · Álbum", "k43": "Mejorando con pruebas automáticas", "k44": "Ver novedades del desarrollo", "k45": "<span class=\"tag\">Misterio en 3 minutos</span><span class=\"badge\">Disponible en la web</span>", "k46": "Sala de contratos: la trampa de la letra pequeña", "k47": "Un juego web corto de misterio en el que comparas las cláusulas de un contrato ficticio con promesas verbales para encontrar la trampa. Es un juego 100 % original y no es asesoría legal real.", "k48": "Partida de 3 minutos", "k49": "Misterio de cotejo de cláusulas", "k50": "Jugar ahora", "k51": "KO-FI · DESCARGA GRATIS", "k52": "4 prompts de IA prácticos<br>para quitarte preocupaciones", "k53": "Son prompts diseñados para que la IA no invente plazos que no existen ni promesas que no hiciste. Son archivos de texto que no necesitan vincular cuentas ni instalar nada, y se descargan gratis en Ko-fi.", "k54": "<span aria-hidden=\"true\" class=\"ico\">☕</span>Conseguirlo gratis en Ko-fi", "k55": "También puedes apoyar con la cantidad que quieras. El apoyo se destina al próximo juego y a los costes del servidor.", "k56": "<span class=\"n\">#01 Ordenar notas</span> <b>Ordena tus notas sin inventar plazos ni responsables</b> <span>Divide el borrador en: confirmado / tareas / hecho / por comprobar / orden sugerido.</span>", "k57": "<span class=\"n\">#02 Chats y correos largos</span> <b>Saca lo esencial y las tareas en 10 segundos</b> <span>Resumen en una frase, hasta 5 puntos clave con su fundamento, y distingue lo decidido de lo que hay que confirmar.</span>", "k58": "<span class=\"n\">#03 Rechazar, pedir, disculparse</span> <b>Respuestas de 2 a 4 frases con tu propio tono</b> <span>No acepta por su cuenta lo que pide la otra persona ni inventa motivos para disculparse.</span>", "k59": "<span class=\"n\">#04 Ahorro, suscripciones, contratos</span> <b>Una tabla comparativa sin condiciones olvidadas</b> <span>Penalizaciones, fecha de fin del descuento y permanencia mínima, lado a lado para cada opción.</span>", "k60": "Canales y contacto", "k61": "Las novedades de nuevos juegos y los apuntes del desarrollo se publican en los canales de abajo. Para colaborar o preguntar, escríbeme por correo.", "k62": "Inicio", "k63": "Bot de comentarios de RadarCat (Comment Bot)", "k64": "Política de privacidad", "k65": "Términos del servicio", "k66": "© 2026 RadarCat (Minsu Kim)"}, "pt": {"k01": "Pular para o conteúdo principal", "k02": "<b>RadarCat</b><span>레이더캣</span>", "k03": "Jogos", "k04": "Prompts grátis", "k05": "Canais", "k06": "Bot de comentários", "k07": "🎮 Sala de prova nº 7", "k08": "<span aria-hidden=\"true\" class=\"dot\"></span>RADARCAT · ESTÚDIO INDIE DE UMA PESSOA SÓ", "k09": "Pequenos jogos de gatos,<br>feitos sozinho,<br><em>publicados na hora.</em>", "k10": "A RadarCat é o estúdio indie de uma pessoa só de <b>Minsu Kim</b>. Faço tudo sozinho, do design e do código à arte e ao som, e publico para você jogar <b>na web, sem instalar nada</b>: o jogo de mistério de fiscal de prova \"Sala de prova nº 7\", um quebra-cabeça de unir gatos e o jogo de coleção \"Nyangglass\". Os prompts práticos que uso todo dia como criador com IA também estão de graça no Ko-fi.", "k11": "<span aria-hidden=\"true\" class=\"ico\">🎮</span>Jogar Sala de prova nº 7", "k12": "<span aria-hidden=\"true\" class=\"ico\">☕</span>Apoiar no Ko-fi", "k13": "Grátis na web", "k14": "Celular e PC", "k15": "Google Play: em preparação", "k16": "Álbum com 10 gatos", "k17": "Desenvolvimento solo · grátis na web", "k18": "<b><i>3</i></b><span>jogos para jogar na web</span>", "k19": "<b><i>10</i></b><span>gatos no álbum do quebra-cabeça</span>", "k20": "<b><i>4</i></b><span>prompts de IA práticos e grátis</span>", "k21": "<b>1<i> pessoa</i></b><span>do planejamento à publicação</span>", "k22": "Jogos para jogar agora, sem instalar", "k23": "Todos estão na web, então basta tocar no link para jogar. No celular, alguns podem ser adicionados à tela inicial e usados como um app.", "k24": "<span class=\"tag\">Mistério de fiscal de prova</span><span class=\"badge\">Google Play em preparação</span>", "k25": "Sala de prova nº 7: encontre o sinal", "k26": "Seja o fiscal da prova e encontre os sinais de cola com dispositivos de IA. Passe pelos períodos 1 a 3 e descubra a verdade com 26 casos e 4 ferramentas.", "k27": "3 períodos · 26 casos", "k28": "4 ferramentas", "k29": "Instalação como PWA", "k30": "Jogar agora", "k31": "<span class=\"tag\">Quebra-cabeça casual</span><span class=\"badge\">Disponível na web</span>", "k32": "Quebra-cabeça de unir gatos v2 <small>Gatos e melancias v2</small>", "k33": "Um quebra-cabeça de unir gatos iguais para formar gatos maiores. Mire o ângulo arrastando e solte: o gato quica nas paredes e cai em outro lugar. Tem álbum, conquistas e itens.", "k34": "Mira por ângulo", "k35": "Quicadas na parede", "k36": "Álbum de 10 · 9 conquistas", "k37": "3 itens", "k38": "Jogar agora", "k39": "<span class=\"tag\">Coleção de gatos</span><span class=\"badge badge-dev\">Em desenvolvimento</span>", "k40": "Nyangglass <small>NyangGlass</small>", "k41": "Um jogo indie de coletar e criar gatos. Está sendo feito por uma pessoa só e polido com testes automáticos toda noite. As novidades saem primeiro no YouTube e no Instagram.", "k42": "Coleção · Álbum", "k43": "Melhorando com testes automáticos", "k44": "Ver novidades do desenvolvimento", "k45": "<span class=\"tag\">Mistério de 3 minutos</span><span class=\"badge\">Disponível na web</span>", "k46": "Sala de contratos: a armadilha das letras miúdas", "k47": "Um jogo web curto de mistério em que você compara as cláusulas de um contrato fictício com promessas verbais para achar a armadilha. É um jogo 100% original e não é aconselhamento jurídico real.", "k48": "Partida de 3 minutos", "k49": "Mistério de conferência de cláusulas", "k50": "Jogar agora", "k51": "KO-FI · DOWNLOAD GRÁTIS", "k52": "4 prompts de IA práticos<br>para aliviar as preocupações do dia a dia", "k53": "São prompts feitos para que a IA não invente prazos que não existem nem promessas que você não fez. São arquivos de texto que não exigem vincular conta nem instalar nada, e estão de graça no Ko-fi.", "k54": "<span aria-hidden=\"true\" class=\"ico\">☕</span>Baixar grátis no Ko-fi", "k55": "Você também pode apoiar com o valor que quiser. O apoio vai para o próximo jogo e para os custos do servidor.", "k56": "<span class=\"n\">#01 Organizar anotações</span> <b>Organiza sem inventar prazos nem responsáveis que não estão na anotação</b> <span>Divide o rascunho em: confirmado / tarefas / concluído / precisa conferir / ordem sugerida.</span>", "k57": "<span class=\"n\">#02 Chats e e-mails longos</span> <b>Tire o essencial e as tarefas em 10 segundos</b> <span>Resumo em uma frase, até 5 pontos-chave com a base de cada um, separando o que foi decidido do que precisa ser confirmado.</span>", "k58": "<span class=\"n\">#03 Recusar, pedir, pedir desculpas</span> <b>Respostas de 2 a 4 frases no seu jeito de falar</b> <span>Não aceita por conta própria o que a outra pessoa pede e não inventa motivos para pedir desculpas.</span>", "k59": "<span class=\"n\">#04 Poupança, assinaturas, contratos</span> <b>Uma tabela comparativa sem condições esquecidas</b> <span>Multas, data de fim do desconto e prazo mínimo, lado a lado para cada opção.</span>", "k60": "Canais e contato", "k61": "Novidades de novos jogos e anotações do desenvolvimento saem nos canais abaixo. Para parcerias ou dúvidas, mande um e-mail.", "k62": "Início", "k63": "Bot de comentários da RadarCat (Comment Bot)", "k64": "Política de Privacidade", "k65": "Termos de Serviço", "k66": "© 2026 RadarCat (Minsu Kim)"}}, "A": {"레이더캣 홈": {"en": "RadarCat home", "ja": "レーダーキャット ホーム", "vi": "Trang chủ RadarCat", "zh": "RadarCat 首页", "es": "Inicio de RadarCat", "pt": "Início da RadarCat"}, "주요 메뉴": {"en": "Main menu", "ja": "メインメニュー", "vi": "Menu chính", "zh": "主菜单", "es": "Menú principal", "pt": "Menu principal"}, "레이더 신호를 두른 고양이 마스코트": {"en": "Cat mascot wrapped in radar signals", "ja": "レーダー信号をまとった猫のマスコット", "vi": "Linh vật mèo bao quanh bởi tín hiệu radar", "zh": "被雷达信号环绕的猫咪吉祥物", "es": "Mascota gato rodeada de señales de radar", "pt": "Mascote gato cercado por sinais de radar"}, "레이더캣 숫자로 보기": {"en": "RadarCat in numbers", "ja": "数字で見るレーダーキャット", "vi": "RadarCat qua các con số", "zh": "数字看 RadarCat", "es": "RadarCat en cifras", "pt": "RadarCat em números"}}, "META": {"title": {"ko": "RadarCat · 레이더캣 — 1인 인디게임 스튜디오 김민수", "en": "RadarCat · Solo indie game studio by Minsu Kim", "ja": "RadarCat · キム・ミンスの1人インディーゲームスタジオ", "vi": "RadarCat · Studio game indie một người của Kim Minsu", "zh": "RadarCat · 金民秀的个人独立游戏工作室", "es": "RadarCat · Estudio indie de una persona de Minsu Kim", "pt": "RadarCat · Estúdio indie de uma pessoa só de Minsu Kim"}, "description": {"ko": "레이더캣(RadarCat)은 김민수 1인 인디게임 스튜디오입니다. 수능 감독관 추리 게임 제7시험장, 고양이 머지 퍼즐, 냥글라스를 웹에서 바로 플레이할 수 있고, 실전 AI 프롬프트 4종을 Ko-fi에 무료로 공개합니다.", "en": "RadarCat is the one-person indie game studio of Minsu Kim. Play the CSAT-proctor mystery \"The Seventh Classroom\", a cat merge puzzle and Nyangglass right on the web, and get 4 practical AI prompts free on Ko-fi.", "ja": "RadarCat(レーダーキャット)はキム・ミンスの1人インディーゲームスタジオです。試験監督ミステリー『第7試験場』、猫のマージパズル、ニャングラスをWebですぐ遊べ、実用AIプロンプト4種をKo-fiで無料公開しています。", "vi": "RadarCat là studio game indie một người của Kim Minsu. Chơi ngay trên web game trinh thám \"Phòng thi số 7\", game ghép mèo và Nyangglass, và nhận miễn phí 4 prompt AI thực dụng trên Ko-fi.", "zh": "RadarCat 是金民秀的个人独立游戏工作室。可直接在网页上玩监考推理游戏《第七考场》、猫咪合成益智游戏和 Nyangglass,并在 Ko-fi 免费获取 4 个实用 AI 提示词。", "es": "RadarCat es el estudio indie de una persona de Minsu Kim. Juega en la web al misterio \"Aula de examen n.º 7\", al puzle de gatos y a Nyangglass, y consigue 4 prompts de IA prácticos gratis en Ko-fi.", "pt": "A RadarCat é o estúdio indie de uma pessoa só de Minsu Kim. Jogue na web o mistério \"Sala de prova nº 7\", o quebra-cabeça de gatos e o Nyangglass, e baixe 4 prompts de IA práticos grátis no Ko-fi."}}, "LANGS": {"ko": "ko", "en": "en", "ja": "ja", "vi": "vi", "zh": "zh-Hans", "es": "es", "pt": "pt-BR"}};
+var KEY='radarcat-lang',cur='ko';
+var nodes=[].slice.call(document.querySelectorAll('[data-i18n]'));
+nodes.forEach(function(e){e.setAttribute('data-ko',e.innerHTML);});
+var aria=[].slice.call(document.querySelectorAll('[data-i18n-aria]'));
+function setMeta(sel,attr,val){var m=document.querySelector(sel);if(m)m.setAttribute(attr,val);}
+function apply(l){
+  if(!D.LANGS[l])l='ko'; cur=l;
+  nodes.forEach(function(e){var k=e.getAttribute('data-i18n');e.innerHTML=(l==='ko')?e.getAttribute('data-ko'):(D.T[l][k]||e.getAttribute('data-ko'));});
+  aria.forEach(function(e){var ko=e.getAttribute('data-i18n-aria');e.setAttribute('aria-label',l==='ko'?ko:(D.A[ko][l]||ko));});
+  document.documentElement.lang=D.LANGS[l];
+  document.title=D.META.title[l];
+  setMeta('meta[name="description"]','content',D.META.description[l]);
+  setMeta('meta[property="og:title"]','content',D.META.title[l]);
+  var sel=document.getElementById('lang-sel'); if(sel) sel.value=l;
+  try{localStorage.setItem(KEY,l);}catch(e){}
+}
+var sel=document.getElementById('lang-sel');
+if(sel) sel.addEventListener('change',function(){apply(sel.value);});
+var q=(location.search.match(/[?&]lang=([a-z]{2})/)||[])[1];
+var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+var nav=(navigator.language||'ko').slice(0,2).toLowerCase();
+apply(q||saved||(D.LANGS[nav]?nav:'ko'));
+})();
+</script></body>
 </html>
