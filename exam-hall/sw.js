@@ -1,5 +1,5 @@
-/* 제7시험장 v1.4.1 오프라인 캐시 서비스워커 */
-const CACHE = 'exam141-v2';
+/* 제7시험장 v1.5 오프라인 캐시 서비스워커 */
+const CACHE = 'exam150-v1';
 const ASSETS = [
   './',
   './index.html',
